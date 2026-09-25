@@ -109,18 +109,20 @@ const stories=[
 "北京很大，大到可以用宫殿、城门和大道来理解。但北京也很小，小到可以从一扇院门开始。胡同没有告诉你一个宏大的答案，它只让你看见一个人怎样生活、几个人怎样相遇，以及一座城市怎样在普通的一天里继续存在。",
 "所以离开胡同的时候，不必急着总结它代表什么。记住刚才看到的一扇门、一段墙、一束下午的光，也许就够了。文化并不总是站在高处等待被解释。有时候，它就在你走过的那条小路旁边，安静地过着自己的日子。"]}];
 let current=0,utterance=null,timer=null,startedAt=0,totalSeconds=0;
-function show(id){document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');stopSpeak();scrollTo(0,0)}
+function show(id){document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));const target=document.getElementById(id);if(!target)return;target.classList.add('active');stopSpeak();window.scrollTo(0,0)}
 function openStory(i){current=i;render();show('reader')}
 function render(){const s=stories[current];storyType.textContent=s.type;storyTitle.textContent=s.title;storySource.textContent=s.source;storyHero.innerHTML='';storyBody.innerHTML=s.body.map((p,i)=>{const img=s.images[Math.min(s.images.length-1,Math.floor(i/s.body.length*s.images.length))];return '<section class="story-scene" data-index="'+i+'"><img src="'+img.url+'" alt="'+s.title+'" loading="'+(i<2?'eager':'lazy')+'"><div class="story-caption">'+img.credit+' · <a href="'+img.source+'" target="_blank" rel="noopener">图片来源 ↗</a></div><div class="story-copy"><p>'+p+'</p></div></section>'}).join('');storyFacts.innerHTML=s.facts.map(x=>'<span class="info-chip">'+x+'</span>').join('');storySources.innerHTML=s.sources.map(x=>'<a href="'+x[1]+'" target="_blank" rel="noopener">'+x[0]+' ↗</a>').join(' · ');audioTitle.textContent=s.title;resetAudio()}
 function estimateDuration(text){return Math.max(20,Math.round(text.length/4.3))}
 function formatTime(sec){sec=Math.max(0,Math.floor(sec));return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
 function resetAudio(){clearInterval(timer);timer=null;audioProgress.style.width='0%';audioElapsed.textContent='0:00';totalSeconds=estimateDuration(stories[current].body.join(''));audioDuration.textContent=formatTime(totalSeconds);audioButton.textContent='▶'}
 function toggleSpeak(){
+  if(!('speechSynthesis' in window)){alert('当前浏览器不支持朗读，请用 Safari 打开。');return}
   if(speechSynthesis.speaking && !speechSynthesis.paused){speechSynthesis.pause();audioButton.textContent='▶';return}
   if(speechSynthesis.paused){speechSynthesis.resume();audioButton.textContent='Ⅱ';return}
   speak();
 }
 function speak(){
+  if(!('speechSynthesis' in window))return;
   stopSpeak();
   const s=stories[current],text=s.body.join('');
   utterance=new SpeechSynthesisUtterance(text);utterance.lang='zh-CN';utterance.rate=.92;
@@ -133,7 +135,7 @@ function speak(){
   timer=setInterval(()=>{if(speechSynthesis.speaking&&!speechSynthesis.paused){const p=Math.min(99,(Date.now()-startedAt)/1000/totalSeconds*100);audioProgress.style.width=p+'%';audioElapsed.textContent=formatTime((Date.now()-startedAt)/1000)}},500);
 }
 let activeScene=-1;function updateReadPosition(percent){const scenes=[...storyBody.querySelectorAll(".story-scene")];const i=Math.min(scenes.length-1,Math.floor(percent/100*scenes.length));if(i===activeScene)return;activeScene=i;scenes.forEach((scene,n)=>scene.classList.toggle("active-read",n===i));if(scenes[i])scenes[i].scrollIntoView({behavior:"smooth",block:"start"})}
-function stopSpeak(){speechSynthesis.cancel();clearInterval(timer);timer=null;audioButton.textContent='▶';audioProgress.style.width='0%';audioElapsed.textContent='0:00';activeScene=-1;storyBody.querySelectorAll(".story-scene").forEach(p=>p.classList.remove("active-read"))}
+function stopSpeak(){if('speechSynthesis' in window)speechSynthesis.cancel();clearInterval(timer);timer=null;audioButton.textContent='▶';audioProgress.style.width='0%';audioElapsed.textContent='0:00';activeScene=-1;if(storyBody)storyBody.querySelectorAll(".story-scene").forEach(p=>p.classList.remove("active-read"))}
 function replaySpeak(){speak()}
 function changeVoice(){alert('声音切换将在下一版加入。')}
 function toggleLang(){alert('English interface will be added after the Chinese MVP.')}
