@@ -132,7 +132,8 @@ function speak(){
   clearInterval(timer);
   timer=setInterval(()=>{if(speechSynthesis.speaking&&!speechSynthesis.paused){const p=Math.min(99,(Date.now()-startedAt)/1000/totalSeconds*100);audioProgress.style.width=p+'%';audioElapsed.textContent=formatTime((Date.now()-startedAt)/1000)}},500);
 }
-let activeScene=-1;function updateReadPosition(percent){const scenes=[...storyBody.querySelectorAll(".story-scene")];const i=Math.min(scenes.length-1,Math.floor(percent/100*scenes.length));if(i===activeScene)return;activeScene=i;scenes.forEach((scene,n)=>scene.classList.toggle("active-read",n===i));if(scenes[i])scenes[i].scrollIntoView({behavior:"smooth",block:"start"})}\nfunction stopSpeak(){speechSynthesis.cancel();clearInterval(timer);timer=null;audioButton.textContent='▶';audioProgress.style.width='0%';audioElapsed.textContent='0:00';activeScene=-1;storyBody.querySelectorAll(".story-scene").forEach(p=>p.classList.remove("active-read"))}
+let activeScene=-1;function updateReadPosition(percent){const scenes=[...storyBody.querySelectorAll(".story-scene")];const i=Math.min(scenes.length-1,Math.floor(percent/100*scenes.length));if(i===activeScene)return;activeScene=i;scenes.forEach((scene,n)=>scene.classList.toggle("active-read",n===i));if(scenes[i])scenes[i].scrollIntoView({behavior:"smooth",block:"start"})}
+function stopSpeak(){speechSynthesis.cancel();clearInterval(timer);timer=null;audioButton.textContent='▶';audioProgress.style.width='0%';audioElapsed.textContent='0:00';activeScene=-1;storyBody.querySelectorAll(".story-scene").forEach(p=>p.classList.remove("active-read"))}
 function replaySpeak(){speak()}
 function changeVoice(){alert('声音切换将在下一版加入。')}
 function toggleLang(){alert('English interface will be added after the Chinese MVP.')}
