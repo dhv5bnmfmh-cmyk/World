@@ -17,6 +17,7 @@ h1{font-size:clamp(28px,6vw,48px);line-height:1.1;margin:22px 0 10px}.sub{color:
 .node{position:absolute;transform:translate(-50%,-50%);border:1px solid #657184;background:#151b25dd;color:#f6f1e5;border-radius:999px;padding:9px 13px;cursor:pointer;font-size:14px}.china{left:68%;top:36%}.japan{left:80%;top:52%}.europe{left:38%;top:27%}.usa{left:20%;top:46%}
 .panel{display:none}.panel.active{display:block}.back{background:none;border:0;color:#b8aa88;padding:0 0 12px;cursor:pointer;font-size:14px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{background:#151a22;border:1px solid #2c3441;border-radius:18px;padding:17px;cursor:pointer;transition:.2s}.card:hover{transform:translateY(-2px);border-color:#81785f}.eyebrow{font-size:11px;color:#9d9277;letter-spacing:1.7px}.card h3{margin:8px 0 0;font-size:20px;line-height:1.35}.card p{display:none}
 .reader{max-width:820px;padding-bottom:132px}.reader h1{font-size:clamp(27px,5.8vw,42px);margin:14px 0 8px}.story{font-size:clamp(17px,3.7vw,23px);line-height:1.9;color:#eee9dc;margin:30px 0}.story p{margin:0 0 1.35em}.meta{color:#9da5b1;font-size:12px;line-height:1.7}
+.story-info{margin-top:34px;padding:16px 0 6px;border-top:1px solid #ffffff10}.info-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}.info-chip{font-size:11px;color:#bfc5cf;border:1px solid #303847;background:#151a22;border-radius:999px;padding:6px 9px}.source-line{font-size:11px;color:#7f8997;line-height:1.7}.source-line a{color:#a9a08a;text-decoration:none;margin-left:4px}
 .audio-player{position:fixed;z-index:30;left:10px;right:10px;bottom:10px;padding:11px 12px calc(11px + env(safe-area-inset-bottom));background:#151a22eF;border:1px solid #ffffff16;border-radius:18px;box-shadow:0 10px 35px #0008;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .audio-top{display:flex;align-items:center;gap:10px}.audio-side{width:42px;height:42px;border:0;border-radius:50%;background:#202732;color:#ddd;border:1px solid #364050;display:grid;place-items:center;font-size:18px;flex:0 0 42px}.audio-art{width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#d9cfb2,#81785f);font-size:19px}.audio-info{min-width:0;flex:1;text-align:center}.audio-label{font-size:10px;letter-spacing:1.3px;color:#9d9277;margin-bottom:3px}.audio-title{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#eee9dc}.audio-button{width:48px;height:48px;border:0;border-radius:50%;background:#e8dfc7;color:#151515;display:grid;place-items:center;font-size:18px;flex:0 0 48px}.audio-stop{width:42px;height:42px;border:1px solid #364050;border-radius:50%;background:#202732;color:#cfd3da;font-size:13px;flex:0 0 42px;display:grid;place-items:center}.audio-progress{height:3px;background:#3a414d;border-radius:99px;margin:10px 2px 0;overflow:hidden}.audio-progress i{display:block;width:0;height:100%;background:#e8dfc7;border-radius:99px;transition:width .15s linear}.audio-time{display:flex;justify-content:space-between;color:#7f8997;font-size:10px;margin:4px 2px 0}
 .small{font-size:12px;color:#7f8997;margin-top:24px}
@@ -52,6 +53,10 @@ h1{font-size:clamp(28px,6vw,48px);line-height:1.1;margin:22px 0 10px}.sub{color:
 <button class="back" onclick="show('beijing')">← 北京</button>
 <div class="eyebrow" id="storyType"></div><h1 id="storyTitle"></h1><p class="meta" id="storySource"></p>
 <article class="story" id="storyBody"></article>
+<div class="story-info">
+  <div class="info-row" id="storyFacts"></div>
+  <div class="source-line">资料来源：<span id="storySources"></span></div>
+</div>
 <div class="audio-player">
   <div class="audio-top">
     <button class="audio-side" onclick="replaySpeak()" aria-label="重读">↺</button>
@@ -67,7 +72,7 @@ h1{font-size:clamp(28px,6vw,48px);line-height:1.1;margin:22px 0 10px}.sub{color:
 </main>
 <script>
 const stories=[
-{type:"北京 · 宫城",title:"紫禁城：墙里面的时间",source:"故宫博物院 · 明清北京",body:[
+{type:"北京 · 宫城",title:"紫禁城：墙里面的时间",source:"故宫博物院 · 明清北京",facts:["北京 · 故宫","明清时期","宫廷 · 建筑 · 制度"],sources:[["故宫博物院 · 宫廷历史","https://www.dpm.org.cn/explores/courts.html"],["故宫博物院 · 建筑","https://www.dpm.org.cn/explore/buildings.html"],["故宫博物院 · 紫禁城建成","https://www.dpm.org.cn/subject_600/buildingdetails/253789.html"]],body:[
 "清晨，故宫的红墙还没有被游客填满。站在午门外，先看到的是墙，再往上看，才是黄色的屋顶。几百年前的人来到这里，也会先面对这道门。只是他们走进去的原因，与今天完全不同。",
 "假如把时间拨回明清时期，一个普通的清晨并不会从“参观故宫”开始。宫门有自己的时间，朝会有自己的时间，仪式有自己的时间。有人负责开门，有人等待召见，有人准备车马，也有人已经在宫墙里的某个院落开始一天的工作。这里不是景点，而是一套正在运转的制度。",
 "午门之后，空间突然变大。太和门、太和殿、中和殿、保和殿沿着中轴线依次展开。人在这样的尺度里很容易变得渺小。广场越大，建筑越高，人的位置就越清楚。这里的建筑并没有大声解释什么，却一直在告诉进入这里的人：什么地方最重要，谁应该站在哪里。",
@@ -78,7 +83,7 @@ const stories=[
 "这也是故宫最耐人寻味的地方。建筑保存下来的不仅是形状，还有时间留下的层次。今天看见的一扇门，可能经历过不同朝代；今天站立的一座宫殿，曾经见证过不同的人和不同的决定。建筑没有告诉我们所有答案，却给历史留下了一个真实的现场。",
 "所以走故宫的时候，不妨偶尔停下来，不看宫殿的正面，只看一段墙、一块石阶，或者一扇已经关闭的门。你会发现，历史并不总是宏大的。它也藏在谁能够通过这扇门、谁必须停在门外，以及一个普通人在这里度过怎样的一天。",
 "离开故宫时，城市重新出现。汽车、地铁、人群和手机屏幕，把人带回今天的北京。身后的红墙看起来依旧安静。只是现在再回头看，它已经不只是一个古建筑的外壳，而像一层留在城市里的时间。过去的人曾经在墙里面生活，而今天的人走进去，是为了理解那个已经结束的世界。"]},
-{type:"北京 · 前门",title:"前门：城门外的北京",source:"前门地区 · 北京城市生活",body:[
+{type:"北京 · 前门",title:"前门：城门外的北京",source:"前门地区 · 北京城市生活",facts:["北京 · 正阳门","明清至今","城门 · 商业 · 城市生活"],sources:[["北京市政府 · 正阳门","https://www.beijing.gov.cn/renwen/rwzyd/gdwh/zym/202107/t20210706_2430351.html"],["北京市政府 · 北京中轴线","https://www.beijing.gov.cn/renwen/zt/pwzz/"]],body:[
 "早上的前门，适合从声音开始认识。脚步声从街道的一头传过来，店铺慢慢打开，车辆经过，游客开始聚集。这里看起来已经很现代，但如果把今天的声音一层层剥掉，前门留下的其实是一段很长的城市记忆。",
 "很久以前，人们进入北京，并不是从今天熟悉的商场和地铁口开始。城门决定了人如何进入城市，也决定了货物和消息怎样流动。正阳门位于北京内城南面，是城市重要的门户之一。门内是城市，门外是通往更远地方的道路。于是，“进城”本身就成为一种经验。",
 "想象一个第一次来到北京的商人。他带着货物来到城门附近，首先要做的不是寻找著名景点，而是寻找可以交易、休息和吃饭的地方。有人接待他，有人替他搬货，有人给牲口准备饲料，也有人告诉他哪条街可以买到需要的东西。对这样的人来说，前门不是一张地图上的标记，而是北京最先向他展开的生活。",
@@ -89,7 +94,7 @@ const stories=[
 "所以今天走前门，不一定要急着寻找“最老”的东西。可以观察一个店门口的人，也可以看一条街上的人从哪里来、往哪里去。城市历史有时候并不藏在说明牌里，而藏在人流的方向里。",
 "如果站在正阳门附近回头看，会发现前门其实一直在做同一件事：把城市和外面的世界连接起来。过去，它连接城内与城外、商人与市场、旅人与北京；今天，它连接历史街区与现代城市，也连接第一次来北京的人和这座城市的过去。",
 "夜晚的前门又是另一幅画面。灯光亮起来，街道变得缓慢，白天的商业节奏逐渐退去。建筑留下轮廓，人群继续经过。也许这就是前门最特别的地方：它从来没有只属于某一个时代。城门可以保存，店铺可以更换，交通可以改变，但城市不断迎接陌生人、容纳生意、制造相遇的能力，一直延续到今天。"]},
-{type:"北京 · 胡同",title:"胡同：一座城市的日常",source:"北京胡同地区 · 城市生活",body:[
+{type:"北京 · 胡同",title:"胡同：一座城市的日常",source:"北京胡同地区 · 城市生活",facts:["北京老城 · 胡同","元明清至今","四合院 · 邻里 · 城市生活"],sources:[["北京市政府 · 老北京四合院","https://www.beijing.gov.cn/tsbj/sxym/202007/t20200713_1946380.html"],["北京市政府 · 北京胡同保护","https://ghzrzyw.beijing.gov.cn/zhengwuxinxi/zxzt/bjcsztgh20162035/202001/t20200102_1554606.html"]],body:[
 "假设你没有目的地。没有故宫，没有广场，也没有一定要拍下来的建筑。你只是从北京的一条大路拐进去，走进一条胡同。路突然变窄了，车声远了一点，墙变多了，院门也多了。你不知道这条路有多长，却开始注意一些刚才不会注意的东西。",
 "一扇门。门环已经有些旧，门旁可能贴着新的通知。再往前，一辆自行车靠在墙边。有人从院子里出来，顺手把门关上。这样的画面没有任何“历史景点”的感觉，却恰恰是胡同最重要的部分：这里首先是生活空间，然后才是文化遗产。",
 "北京传统胡同与四合院之间有很深的联系。院落围合出家庭自己的空间，胡同则把一个个家庭连接起来。于是，城市出现了两个尺度。门里面，是家庭的日常；门外，是邻里共享的道路。一个人可以关上门拥有自己的生活，也可以打开门进入一个更大的社区。",
@@ -105,7 +110,7 @@ const stories=[
 let current=0,utterance=null,timer=null,startedAt=0,totalSeconds=0;
 function show(id){document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');stopSpeak();scrollTo(0,0)}
 function openStory(i){current=i;render();show('reader')}
-function render(){const s=stories[current];storyType.textContent=s.type;storyTitle.textContent=s.title;storySource.textContent=s.source;storyBody.innerHTML=s.body.map(p=>'<p>'+p+'</p>').join('');audioTitle.textContent=s.title;resetAudio()}
+function render(){const s=stories[current];storyType.textContent=s.type;storyTitle.textContent=s.title;storySource.textContent=s.source;storyBody.innerHTML=s.body.map(p=>'<p>'+p+'</p>').join('');storyFacts.innerHTML=s.facts.map(x=>'<span class="info-chip">'+x+'</span>').join('');storySources.innerHTML=s.sources.map(x=>'<a href="'+x[1]+'" target="_blank" rel="noopener">'+x[0]+' ↗</a>').join(' · ');audioTitle.textContent=s.title;resetAudio()}
 function estimateDuration(text){return Math.max(25,Math.round(text.length/3.2))}
 function formatTime(sec){sec=Math.max(0,Math.floor(sec));return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
 function resetAudio(){clearInterval(timer);timer=null;audioProgress.style.width='0%';audioElapsed.textContent='0:00';totalSeconds=estimateDuration(stories[current].body.join(''));audioDuration.textContent=formatTime(totalSeconds);audioButton.textContent='▶'}
