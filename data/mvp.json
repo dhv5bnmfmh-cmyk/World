@@ -1,0 +1,21 @@
+{
+  "name": "世界文化探索 MVP",
+  "version": "0.1.0",
+  "scope": "World -> China -> Beijing -> cultural stories",
+  "content_policy": {
+    "realPlacesOnly": true,
+    "realPeopleOnly": true,
+    "fictionalCharactersMustBeLabeled": true,
+    "sourceRequired": true,
+    "copyrightRequired": true
+  },
+  "phase1": {
+    "country": "中国",
+    "city": "北京",
+    "entries": [
+      {"id":"BJ-001","title":"紫禁城：墙里面的时间","category":"宫城"},
+      {"id":"BJ-002","title":"前门：城门外的北京","category":"城市"},
+      {"id":"BJ-003","title":"胡同：一座城市的日常","category":"生活"}
+    ]
+  }
+}
