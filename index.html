@@ -76,11 +76,11 @@ const $id=id=>document.getElementById(id);
 const storyType=$id('storyType'),storyTitle=$id('storyTitle'),storySource=$id('storySource'),storyHero=$id('storyHero'),storyBody=$id('storyBody'),cinema=$id('cinema'),cinemaTitle=$id('cinemaTitle'),cinemaSource=$id('cinemaSource'),cinemaCaption=$id('cinemaCaption'),cinemaImageCredit=$id('cinemaImageCredit'),cinemaImage=$id('cinemaImage'),cinemaSubtitle=$id('cinemaSubtitle'),storyFacts=$id('storyFacts'),storySources=$id('storySources'),audioTitle=$id('audioTitle'),audioButton=$id('audioButton'),audioProgress=$id('audioProgress'),audioElapsed=$id('audioElapsed'),audioDuration=$id('audioDuration'),speedButton=$id('speedButton');
 const stories=[
 {type:"北京 · 宫城",title:"紫禁城：墙里面的时间",source:"故宫博物院 · 明清北京",images:[
-{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Forbidden_City_Beijing_(3020017294).jpg",credit:"Dave Proffer · CC BY 2.0",source:"https://commons.wikimedia.org/wiki/File:Forbidden_City_Beijing_(3020017294).jpg"},
-{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Forbidden_City_(2381723485).jpg",credit:"Sam / Olai Ose / Skjaervoy · CC BY-SA 2.0",source:"https://commons.wikimedia.org/wiki/File:Forbidden_City_(2381723485).jpg"},
-{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Forbidden_City_(2382595174).jpg",credit:"Sam / Olai Ose / Skjaervoy · CC BY-SA 2.0",source:"https://commons.wikimedia.org/wiki/File:Forbidden_City_(2382595174).jpg"},
-{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Forbiddencitypic12.jpg",credit:"Sam Ose / Olai Skjaervoy · CC BY-SA 2.0",source:"https://commons.wikimedia.org/wiki/File:Forbiddencitypic12.jpg"},
-{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/EM_Forbidden_City,_Beijing_(3135328355).jpg",credit:"Eddie Maloney · CC BY 2.0",source:"https://commons.wikimedia.org/wiki/File:EM_Forbidden_City,_Beijing_(3135328355).jpg"}],facts:["北京 · 故宫","明清时期","宫廷 · 建筑 · 制度"],sources:[["故宫博物院 · 宫廷历史","https://www.dpm.org.cn/explores/courts.html"],["故宫博物院 · 建筑","https://www.dpm.org.cn/explore/buildings.html"],["故宫博物院 · 紫禁城建成","https://www.dpm.org.cn/subject_600/buildingdetails/253789.html"]],body:[
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/故宫博物院红墙_-_panoramio.jpg",credit:"jiang-wen-jie · CC BY-SA 3.0",source:"https://commons.wikimedia.org/wiki/File:故宫博物院红墙_-_panoramio.jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Gugong_Wumen_September_1984.jpg",credit:"BabelStone · CC BY-SA 4.0",source:"https://commons.wikimedia.org/wiki/File:Gugong_Wumen_September_1984.jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Gugong_Taihedian_September_1984.jpg",credit:"BabelStone · CC BY-SA 4.0",source:"https://commons.wikimedia.org/wiki/File:Gugong_Taihedian_September_1984.jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Guardian_lion_(female)_of_the_Gate_of_Supreme_Harmony_2010_April.jpg",credit:"Morio · CC BY-SA 3.0",source:"https://commons.wikimedia.org/wiki/File:Guardian_lion_(female)_of_the_Gate_of_Supreme_Harmony_2010_April.jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Exhibition_of_architecture_of_the_Forbidden_City_stairs_2015_December.jpg",credit:"Morio · CC BY-SA 3.0",source:"https://commons.wikimedia.org/wiki/File:Exhibition_of_architecture_of_the_Forbidden_City_stairs_2015_December.jpg"}],facts:["北京 · 故宫","明清时期","宫廷 · 建筑 · 制度"],sources:[["故宫博物院 · 宫廷历史","https://www.dpm.org.cn/explores/courts.html"],["故宫博物院 · 建筑","https://www.dpm.org.cn/explore/buildings.html"],["故宫博物院 · 紫禁城建成","https://www.dpm.org.cn/subject_600/buildingdetails/253789.html"]],body:[
 "清晨，故宫的红墙还没有被游客填满。站在午门外，先看到的是墙，再往上看，才是黄色的屋顶。几百年前的人来到这里，也会先面对这道门。只是他们走进去的原因，与今天完全不同。",
 "假如把时间拨回明清时期，一个普通的清晨并不会从“参观故宫”开始。宫门有自己的时间，朝会有自己的时间，仪式有自己的时间。有人负责开门，有人等待召见，有人准备车马，也有人已经在宫墙里的某个院落开始一天的工作。这里不是景点，而是一套正在运转的制度。",
 "午门之后，空间突然变大。太和门、太和殿、中和殿、保和殿沿着中轴线依次展开。人在这样的尺度里很容易变得渺小。广场越大，建筑越高，人的位置就越清楚。这里的建筑并没有大声解释什么，却一直在告诉进入这里的人：什么地方最重要，谁应该站在哪里。",
@@ -199,7 +199,7 @@ function showChunk(i){
   chunkIndex=Math.max(0,Math.min(i,readingChunks.length-1));
   const text=readingChunks[chunkIndex];
   const next=readingChunks[chunkIndex+1]||'';
-  const imageNo=Math.min(s.images.length-1,chunkIndex);
+  const imageNo=Math.min(s.images.length-1,Math.floor(chunkIndex/2));
   const image=s.images[imageNo];
   cinemaSubtitle.innerHTML='<span class="current-line">'+text+'</span>'+ (next?'<span class="next-line">'+next+'</span>':'');
   cinemaCaption.textContent=image.credit;
