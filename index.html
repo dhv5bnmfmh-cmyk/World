@@ -157,7 +157,7 @@ function showChunk(i){
   chunkIndex=Math.max(0,Math.min(i,readingChunks.length-1));
   const text=readingChunks[chunkIndex];
   const next=readingChunks[chunkIndex+1]||'';
-  const imageNo=Math.min(s.images.length-1,Math.floor(chunkIndex/2));
+  const imageNo=Math.min(s.images.length-1,chunkIndex % s.images.length);
   const image=s.images[imageNo];
   cinemaSubtitle.innerHTML='<span class="current-line">'+text+'</span>'+ (next?'<span class="next-line">'+next+'</span>':'');
   cinemaCaption.textContent=image.credit;
