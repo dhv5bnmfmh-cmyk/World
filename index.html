@@ -205,10 +205,10 @@ function speak(){
     const sentences=paragraph.split(/(?<=[。！？；，、])/).map(x=>x.trim()).filter(Boolean);
     sentences.forEach(sentence=>{
       let rest=sentence;
-      while(rest.length>18){
-        let cut=18;
+      while(rest.length>4){
+        let cut=4;
         const marks='，、；：';
-        for(let j=17;j>=10;j--){if(marks.includes(rest[j])){cut=j+1;break}}
+        for(let j=3;j>=2;j--){if(marks.includes(rest[j])){cut=j+1;break}}
         playUnits.push({text:rest.slice(0,cut),chunkIndex:pi});
         rest=rest.slice(cut).trim();
       }
