@@ -142,6 +142,20 @@ function buildReadingChunks(text){
   return chunks;
 }
 
+function chooseChineseVoice(){
+  if(!('speechSynthesis' in window))return null;
+  const voices=speechSynthesis.getVoices();
+  const cn=voices.filter(v=>/^zh-CN/i.test(v.lang));
+  if(!cn.length)return null;
+  const preferred=['Ting-Ting','Yaoyao','Xiaoxiao','Li-mu','Xiaoyi','普通话'];
+  return cn.sort((a,b)=>{
+    const ai=preferred.findIndex(x=>a.name.includes(x));
+    const bi=preferred.findIndex(x=>b.name.includes(x));
+    return (ai<0?99:ai)-(bi<0?99:bi);
+  })[0];
+}
+if('speechSynthesis' in window){speechSynthesis.onvoiceschanged=()=>{};setTimeout(()=>speechSynthesis.getVoices(),100);}
+
 function render(){
   const s=stories[current];
   storyType.textContent=s.type;storyTitle.textContent=s.title;storySource.textContent=s.source;
@@ -198,7 +212,12 @@ function speakUnit(i){
   chunkCharsConsumed=0;
   startedAt=Date.now();
   utterance=new SpeechSynthesisUtterance(unit.text);
-  utterance.lang='zh-CN';utterance.rate=activeSpeed;
+  const voices=speechSynthesis.getVoices().filter(v=>/^zh-CN/i.test(v.lang));
+  const chineseVoice=window.worldVoiceName ? voices.find(v=>v.name===window.worldVoiceName) : chooseChineseVoice();
+  utterance.lang=chineseVoice?.lang||'zh-CN';
+  if(chineseVoice)utterance.voice=chineseVoice;
+  utterance.rate=activeSpeed;
+  utterance.pitch=1.0;
   utterance.onend=()=>{if(reading){speakUnit(unitIndex+1)}};
   utterance.onerror=()=>{if(reading){finishSpeak()}};
   speechSynthesis.speak(utterance);
@@ -274,7 +293,16 @@ function changeSpeed(){
     ? '当前语音片段保持不中断，下一小段立即使用 '+readSpeed.toFixed(1)+'×'
     : '朗读速度 '+readSpeed.toFixed(1)+'×';
 }
-function changeVoice(){alert('声音切换将在下一版加入。')}
+function changeVoice(){
+  if(!('speechSynthesis' in window)){alert('当前浏览器不支持语音选择。');return}
+  const voices=speechSynthesis.getVoices().filter(v=>/^zh-CN/i.test(v.lang));
+  if(!voices.length){alert('当前 iPhone 没有可用的中文普通话语音。请到“设置 → 辅助功能 → 朗读内容 → 声音”下载增强中文语音。');return}
+  const currentVoice=window.worldVoiceName||'';
+  const idx=Math.max(0,voices.findIndex(v=>v.name===currentVoice));
+  const next=voices[(idx+1)%voices.length];
+  window.worldVoiceName=next.name;
+  alert('已选择中文语音：'+next.name+'。下一段朗读开始生效。');
+}
 function toggleLang(){alert('English interface will be added after the Chinese MVP.')}
 </script>
 </body></html>
