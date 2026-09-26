@@ -202,8 +202,18 @@ function speak(){
   readingChunks=stories[current].body.map(x=>x.trim()).filter(Boolean);
   playUnits=[];
   readingChunks.forEach((paragraph,pi)=>{
-    const sentences=paragraph.split(/(?<=[。！？；])/).map(x=>x.trim()).filter(Boolean);
-    sentences.forEach(text=>playUnits.push({text,chunkIndex:pi}));
+    const sentences=paragraph.split(/(?<=[。！？；，、])/).map(x=>x.trim()).filter(Boolean);
+    sentences.forEach(sentence=>{
+      let rest=sentence;
+      while(rest.length>18){
+        let cut=18;
+        const marks='，、；：';
+        for(let j=17;j>=10;j--){if(marks.includes(rest[j])){cut=j+1;break}}
+        playUnits.push({text:rest.slice(0,cut),chunkIndex:pi});
+        rest=rest.slice(cut).trim();
+      }
+      if(rest)playUnits.push({text:rest,chunkIndex:pi});
+    });
   });
   totalSeconds=playUnits.reduce((sum,u)=>sum+Math.max(1.2,u.text.length/4.3),0);
   audioDuration.textContent=formatTime(totalSeconds);
@@ -244,7 +254,7 @@ function changeSpeed(){
   readSpeed=speeds[(n+1)%speeds.length];
   speedButton.textContent=readSpeed.toFixed(1)+'×';
   speedButton.title=reading
-    ? '当前句继续朗读，下一句立即使用 '+readSpeed.toFixed(1)+'×'
+    ? '当前语音片段保持不中断，下一小段立即使用 '+readSpeed.toFixed(1)+'×'
     : '朗读速度 '+readSpeed.toFixed(1)+'×';
 }
 function changeVoice(){alert('声音切换将在下一版加入。')}
