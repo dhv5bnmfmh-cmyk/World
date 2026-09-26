@@ -109,7 +109,7 @@ const stories=[
 "北京很大，大到可以用宫殿、城门和大道来理解。但北京也很小，小到可以从一扇院门开始。胡同没有告诉你一个宏大的答案，它只让你看见一个人怎样生活、几个人怎样相遇，以及一座城市怎样在普通的一天里继续存在。",
 "所以离开胡同的时候，不必急着总结它代表什么。记住刚才看到的一扇门、一段墙、一束下午的光，也许就够了。文化并不总是站在高处等待被解释。有时候，它就在你走过的那条小路旁边，安静地过着自己的日子。"]}];
 let current=0,utterance=null,timer=null,startedAt=0,totalSeconds=0,elapsedBeforePause=0;
-let readingChunks=[],chunkIndex=0,chunkElapsed=0,chunkDuration=0,chunkCharsConsumed=0,reading=false,readSpeed=1.0,activeSpeed=1.0;
+let readingChunks=[],playUnits=[],unitIndex=0,chunkIndex=0,chunkElapsed=0,chunkDuration=0,chunkCharsConsumed=0,reading=false,readSpeed=1.0,activeSpeed=1.0;
 
 function show(id){document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));const target=document.getElementById(id);if(!target)return;target.classList.add('active');stopSpeak();window.scrollTo(0,0)}
 function openStory(i){current=i;render();show('reader')}
@@ -169,18 +169,20 @@ function showChunk(i){
   }
 }
 
-function speakChunk(i,textOverride,preserveOffset=false){
-  if(!reading||i>=readingChunks.length){finishSpeak();return}
-  chunkIndex=i;showChunk(i);
-  const text=textOverride!==undefined?textOverride:readingChunks[i];
+function speakUnit(i){
+  if(!reading||i>=playUnits.length){finishSpeak();return}
+  unitIndex=i;
+  const unit=playUnits[i];
+  chunkIndex=unit.chunkIndex;
+  showChunk(chunkIndex);
   activeSpeed=readSpeed;
-  chunkDuration=Math.max(1.2,text.length/(4.3*activeSpeed));
   chunkElapsed=0;
+  chunkDuration=Math.max(1.2,unit.text.length/(4.3*activeSpeed));
   chunkCharsConsumed=0;
   startedAt=Date.now();
-  utterance=new SpeechSynthesisUtterance(text);
+  utterance=new SpeechSynthesisUtterance(unit.text);
   utterance.lang='zh-CN';utterance.rate=activeSpeed;
-  utterance.onend=()=>{if(reading){speakChunk(chunkIndex+1)}};
+  utterance.onend=()=>{if(reading){speakUnit(unitIndex+1)}};
   utterance.onerror=()=>{if(reading){finishSpeak()}};
   speechSynthesis.speak(utterance);
 }
@@ -196,9 +198,14 @@ function speak(){
   if(!('speechSynthesis' in window))return;
   if(reading&&speechSynthesis.paused){speechSynthesis.resume();audioButton.textContent='Ⅱ';return}
   stopSpeak();
-  reading=true;chunkIndex=0;startedAt=Date.now();elapsedBeforePause=0;audioButton.textContent='Ⅱ';
+  reading=true;chunkIndex=0;unitIndex=0;startedAt=Date.now();elapsedBeforePause=0;audioButton.textContent='Ⅱ';
   readingChunks=stories[current].body.map(x=>x.trim()).filter(Boolean);
-  totalSeconds=readingChunks.reduce((sum,t)=>sum+Math.max(1.2,t.length/4.3),0);
+  playUnits=[];
+  readingChunks.forEach((paragraph,pi)=>{
+    const sentences=paragraph.split(/(?<=[。！？；])/).map(x=>x.trim()).filter(Boolean);
+    sentences.forEach(text=>playUnits.push({text,chunkIndex:pi}));
+  });
+  totalSeconds=playUnits.reduce((sum,u)=>sum+Math.max(1.2,u.text.length/4.3),0);
   audioDuration.textContent=formatTime(totalSeconds);
   showChunk(0);
   clearInterval(timer);
@@ -206,10 +213,12 @@ function speak(){
     if(!reading)return;
     if(speechSynthesis.speaking&&!speechSynthesis.paused){
       chunkElapsed=(Date.now()-startedAt)/1000;
-      const completedChars=readingChunks.slice(0,chunkIndex).reduce((a,t)=>a+t.length,0);
-      const currentChars=Math.min(readingChunks[chunkIndex].length,Math.floor(chunkElapsed*4.3*activeSpeed));
-      const spokenChars=Math.min(readingChunks.join('').length,completedChars+currentChars);
-      const p=Math.min(99.5,spokenChars/readingChunks.join('').length*100);
+      const completedChars=playUnits.slice(0,unitIndex).reduce((a,u)=>a+u.text.length,0);
+      const currentUnit=playUnits[unitIndex]||{text:''};
+      const currentChars=Math.min(currentUnit.text.length,Math.floor(chunkElapsed*4.3*activeSpeed));
+      const totalChars=playUnits.reduce((a,u)=>a+u.text.length,0);
+      const spokenChars=Math.min(totalChars,completedChars+currentChars);
+      const p=Math.min(99.5,spokenChars/totalChars*100);
       const elapsed=Math.min(totalSeconds,totalSeconds*p/100);
       audioProgress.style.width=p+'%';audioElapsed.textContent=formatTime(elapsed);
     }
@@ -225,7 +234,7 @@ function finishSpeak(){
 function stopSpeak(){
   if('speechSynthesis' in window)speechSynthesis.cancel();
   clearInterval(timer);timer=null;reading=false;audioButton.textContent='▶';
-  audioProgress.style.width='0%';audioElapsed.textContent='0:00';chunkIndex=0;chunkElapsed=0;chunkDuration=0;chunkCharsConsumed=0;
+  audioProgress.style.width='0%';audioElapsed.textContent='0:00';unitIndex=0;chunkIndex=0;chunkElapsed=0;chunkDuration=0;chunkCharsConsumed=0;
 }
 
 function replaySpeak(){speak()}
@@ -234,7 +243,9 @@ function changeSpeed(){
   const n=speeds.indexOf(readSpeed);
   readSpeed=speeds[(n+1)%speeds.length];
   speedButton.textContent=readSpeed.toFixed(1)+'×';
-  speedButton.title=reading ? '当前语音保持不变，下一段使用 '+readSpeed.toFixed(1)+'×' : '朗读速度 '+readSpeed.toFixed(1)+'×';
+  speedButton.title=reading
+    ? '当前句继续朗读，下一句立即使用 '+readSpeed.toFixed(1)+'×'
+    : '朗读速度 '+readSpeed.toFixed(1)+'×';
 }
 function changeVoice(){alert('声音切换将在下一版加入。')}
 function toggleLang(){alert('English interface will be added after the Chinese MVP.')}
