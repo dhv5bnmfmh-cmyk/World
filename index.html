@@ -207,7 +207,7 @@ function speak(){
       chunkElapsed=(Date.now()-startedAt)/1000;
       const completedChars=readingChunks.slice(0,chunkIndex).reduce((a,t)=>a+t.length,0);
       const currentChars=Math.min(readingChunks[chunkIndex].length,Math.floor(chunkElapsed*4.3*readSpeed));
-      const spokenChars=Math.min(readingChunks.join('').length,completedChars+chunkCharsConsumed+currentChars);
+      const spokenChars=Math.min(readingChunks.join('').length,completedChars+currentChars);
       const p=Math.min(99.5,spokenChars/readingChunks.join('').length*100);
       const elapsed=Math.min(totalSeconds,totalSeconds*p/100);
       audioProgress.style.width=p+'%';audioElapsed.textContent=formatTime(elapsed);
@@ -231,49 +231,11 @@ function replaySpeak(){speak()}
 function changeSpeed(){
   const speeds=[0.8,1.0,1.2,1.5];
   const n=speeds.indexOf(readSpeed);
-  const nextSpeed=speeds[(n+1)%speeds.length];
-
-  if(!reading){
-    readSpeed=nextSpeed;
-    speedButton.textContent=readSpeed.toFixed(1)+'×';
-    return;
-  }
-
-  const wasPaused=speechSynthesis.paused;
-  const oldText=readingChunks[chunkIndex]||'';
-  const elapsedNow=speechSynthesis.speaking ? (Date.now()-startedAt)/1000 : chunkElapsed;
-  const charsRead=Math.min(Math.max(0,oldText.length-1),Math.floor(elapsedNow*4.3*readSpeed));
-
-  chunkCharsConsumed=Math.min(oldText.length-1,chunkCharsConsumed+charsRead);
-  const remaining=oldText.slice(chunkCharsConsumed);
-
-  readSpeed=nextSpeed;
+  readSpeed=speeds[(n+1)%speeds.length];
   speedButton.textContent=readSpeed.toFixed(1)+'×';
-  speechSynthesis.cancel();
-
-  if(!remaining){
-    if(!wasPaused)setTimeout(()=>speakChunk(chunkIndex+1),120);
-    return;
-  }
-
-  chunkElapsed=0;
-  chunkDuration=Math.max(1.2,remaining.length/(4.3*readSpeed));
-
-  setTimeout(()=>{
-    if(!reading)return;
-    utterance=new SpeechSynthesisUtterance(remaining);
-    utterance.lang='zh-CN';
-    utterance.rate=readSpeed;
-    utterance.onend=()=>{if(reading)speakChunk(chunkIndex+1)};
-    utterance.onerror=()=>{if(reading)finishSpeak()};
-    speechSynthesis.speak(utterance);
-    startedAt=Date.now();
-    if(wasPaused){
-      setTimeout(()=>{if(reading&&speechSynthesis.speaking)speechSynthesis.pause()},30);
-    }
-  },120);
-}
-function changeVoice(){alert('声音切换将在下一版加入。')}
+  // iOS speechSynthesis cannot change an active utterance's rate safely.
+  // Keep the current sentence playing and apply the new speed to the next sentence.
+}function changeVoice(){alert('声音切换将在下一版加入。')}
 function toggleLang(){alert('English interface will be added after the Chinese MVP.')}
 </script>
 </body></html>
