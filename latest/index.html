@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10131a">
+<title>世界文化探索</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0d1016;color:#f4f1e8;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}button{font:inherit}
+.app{min-height:100vh;max-width:1100px;margin:auto;background:radial-gradient(circle at 50% 0,#26344b 0,#0d1016 42%);padding:18px 16px 48px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.brand{font-size:12px;letter-spacing:2.5px;color:#b8aa88}.lang{border:1px solid #3a4352;background:#151a23;color:#ddd8ca;border-radius:20px;padding:6px 11px}
+h1{font-size:clamp(28px,6vw,48px);line-height:1.1;margin:22px 0 10px}.sub{color:#aeb5c0;max-width:650px;line-height:1.8}
+.world{position:relative;margin:24px 0;border:1px solid #303949;border-radius:24px;min-height:430px;overflow:hidden;background:linear-gradient(180deg,#172233,#10151d)}
+.grid{position:absolute;inset:0;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:44px 44px}
+.orbit{position:absolute;border:1px solid #6f7d8e33;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}.o1{width:260px;height:260px}.o2{width:430px;height:430px}.o3{width:620px;height:620px}
+.earth{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:155px;height:155px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#6c9f9b,#294f57 45%,#142e38 75%);box-shadow:0 0 70px #4d8d9344}
+.node{position:absolute;transform:translate(-50%,-50%);border:1px solid #657184;background:#151b25dd;color:#f6f1e5;border-radius:999px;padding:9px 13px;cursor:pointer;font-size:14px}.china{left:68%;top:36%}.japan{left:80%;top:52%}.europe{left:38%;top:27%}.usa{left:20%;top:46%}
+.panel{display:none}.panel.active{display:block}.back{background:none;border:0;color:#b8aa88;padding:0 0 12px;cursor:pointer;font-size:14px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{background:#151a22;border:1px solid #2c3441;border-radius:18px;padding:17px;cursor:pointer;transition:.2s}.card:hover{transform:translateY(-2px);border-color:#81785f}.eyebrow{font-size:11px;color:#9d9277;letter-spacing:1.7px}.card h3{margin:8px 0 0;font-size:20px;line-height:1.35}.card p{display:none}
+.reader{position:fixed;inset:0;z-index:20;max-width:none;padding:0;background:#05070a;overflow:hidden}.reader>.back{position:absolute;z-index:30;top:14px;left:14px;padding:8px 12px;background:#0d101699;border:1px solid #ffffff18;border-radius:999px;backdrop-filter:blur(12px);color:#fff}.reader #storyType,.reader #storyTitle,.reader #storySource,.reader .story-hero{display:none!important}.reader h1{font-size:clamp(27px,5.8vw,42px);margin:14px 0 8px}.story-hero{display:none}.story{margin:0 -16px;line-height:1.75;color:#fff}.cinema{position:fixed;inset:0;width:100vw;height:100dvh;min-height:100dvh;overflow:hidden;background:#05070a;display:block;padding:0}.cinema-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;opacity:1;transition:opacity .45s ease;transform:none;background:#05070a}.cinema::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,#00000010 28%,#00000018 48%,#000000d8 100%)}.cinema-image-credit{position:absolute;z-index:8;top:calc(12px + env(safe-area-inset-top));right:12px;max-width:180px;padding:4px 6px;border-radius:6px;background:#00000055;color:#ffffffb8;font-size:8px;line-height:1.35;text-decoration:none;text-shadow:0 1px 5px #000;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}.cinema-top{display:none}.cinema-title{font-size:12px;letter-spacing:1px;color:#ffffffcc;text-shadow:0 2px 10px #000}.cinema-source{font-size:10px;color:#ffffff99}.cinema-subtitle{position:absolute;z-index:6;left:22px;right:22px;bottom:calc(132px + env(safe-area-inset-bottom));max-height:46dvh;overflow:hidden;padding:8px 4px 12px;text-align:left;font-size:clamp(18px,5vw,26px);line-height:1.72;letter-spacing:.01em;color:#fff;max-width:900px;margin:auto;text-shadow:0 2px 16px #000,0 1px 5px #000;background:none;border-radius:0} .cinema-caption{display:none}.cinema-subtitle .current-line{display:block}.cinema-subtitle .next-line{display:block;margin-top:20px;padding-top:0;border-top:0;color:#b8bec8;font-size:.94em}.cinema-end{display:none}.reader .story-info{display:none}.meta{color:#9da5b1;font-size:12px;line-height:1.7}
+.story-info{margin-top:34px;padding:16px 0 6px;border-top:1px solid #ffffff10}.info-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}.info-chip{font-size:11px;color:#bfc5cf;border:1px solid #303847;background:#151a22;border-radius:999px;padding:6px 9px}.source-line{font-size:11px;color:#7f8997;line-height:1.7}.source-line a{color:#a9a08a;text-decoration:none;margin-left:4px}
+.audio-player{position:fixed;z-index:30;left:10px;right:10px;bottom:10px;padding:11px 12px calc(11px + env(safe-area-inset-bottom));background:#151a22eF;border:1px solid #ffffff16;border-radius:18px;box-shadow:0 10px 35px #0008;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.audio-top{display:flex;align-items:center;gap:10px}.audio-side{width:42px;height:42px;border:0;border-radius:50%;background:#202732;color:#ddd;border:1px solid #364050;display:grid;place-items:center;font-size:18px;flex:0 0 42px} .audio-speed{width:54px;height:42px;border:1px solid #9d9277;border-radius:14px;background:#e8dfc7;color:#151515;font-size:13px;font-weight:600;flex:0 0 48px;display:grid;place-items:center}.audio-info{min-width:0;flex:1;text-align:center}.audio-label{font-size:10px;letter-spacing:1.3px;color:#9d9277;margin-bottom:3px}.audio-title{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#eee9dc}.audio-button{width:48px;height:48px;border:0;border-radius:50%;background:#e8dfc7;color:#151515;display:grid;place-items:center;font-size:18px;flex:0 0 48px}.audio-stop{width:42px;height:42px;border:1px solid #364050;border-radius:50%;background:#202732;color:#cfd3da;font-size:13px;flex:0 0 42px;display:grid;place-items:center}.audio-progress{height:3px;background:#3a414d;border-radius:99px;margin:10px 2px 0;overflow:hidden}.audio-progress i{display:block;width:0;height:100%;background:#e8dfc7;border-radius:99px;transition:width .15s linear}.audio-time{display:flex;justify-content:space-between;color:#7f8997;font-size:10px;margin:4px 2px 0}
+.small{font-size:12px;color:#7f8997;margin-top:24px}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="top"><div class="brand">WORLD · 世界文化探索</div><button class="lang" onclick="toggleLang()">中 / EN</button></header>
+
+<section id="home" class="panel active">
+<h1>从一个地方，<br>认识一个世界。</h1>
+<div class="world">
+<div class="grid"></div><div class="orbit o1"></div><div class="orbit o2"></div><div class="orbit o3"></div><div class="earth"></div>
+<button class="node china" onclick="show('china')">🇨🇳 中国</button><button class="node japan">🇯🇵 日本</button><button class="node europe">🇪🇺 欧洲</button><button class="node usa">🇺🇸 美国</button>
+</div>
+</section>
+
+<section id="china" class="panel">
+<button class="back" onclick="show('home')">← 世界</button><h1>中国</h1>
+<div class="cards"><article class="card" onclick="show('beijing')"><div class="eyebrow">01 · 首都</div><h3>北京</h3></article><article class="card"><div class="eyebrow">COMING SOON</div><h3>更多城市</h3></article></div>
+</section>
+
+<section id="beijing" class="panel">
+<button class="back" onclick="show('china')">← 中国</button><h1>北京</h1>
+<div class="cards">
+<article class="card" onclick="openStory(0)"><div class="eyebrow">宫城 · 时间</div><h3>紫禁城：墙里面的时间</h3></article>
+<article class="card" onclick="openStory(1)"><div class="eyebrow">城市 · 前门</div><h3>前门：城门外的北京</h3></article>
+<article class="card" onclick="openStory(2)"><div class="eyebrow">生活 · 胡同</div><h3>胡同：一座城市的日常</h3></article>
+</div>
+</section>
+
+<section id="reader" class="panel reader">
+<button class="back" onclick="show('beijing')">← 北京</button>
+<div class="eyebrow" id="storyType"></div><h1 id="storyTitle"></h1><p class="meta" id="storySource"></p>
+<figure class="story-hero" id="storyHero"></figure>
+<article class="story" id="storyBody"><div class="cinema"><img class="cinema-image" id="cinemaImage" src="" alt=""><div class="cinema-top"><span class="cinema-title" id="cinemaTitle"></span><span class="cinema-source" id="cinemaSource"></span></div><div class="cinema-caption" id="cinemaCaption"></div><a class="cinema-image-credit" id="cinemaImageCredit" href="#" target="_blank" rel="noopener">图片来源</a><div class="cinema-subtitle" id="cinemaSubtitle"></div></div></article>
+<div class="story-info">
+  <div class="info-row" id="storyFacts"></div>
+  <div class="source-line">资料来源：<span id="storySources"></span></div>
+</div>
+<div class="audio-player">
+  <div class="audio-top">
+    <button class="audio-side" onclick="replaySpeak()" aria-label="重读">↺</button>
+    <button class="audio-speed" id="speedButton" onclick="changeSpeed()" aria-label="朗读速度">1.0×</button>
+    <div class="audio-info"><div class="audio-label">正在朗读</div><div class="audio-title" id="audioTitle">紫禁城：墙里面的时间</div></div>
+    <button class="audio-button" id="audioButton" onclick="toggleSpeak()" aria-label="播放">▶</button>
+    <button class="audio-side" onclick="changeVoice()" aria-label="切换声音">♬</button>
+  </div>
+  <div class="audio-progress"><i id="audioProgress"></i></div>
+  <div class="audio-time"><span id="audioElapsed">0:00</span><span id="audioDuration">--:--</span></div>
+</div>
+</section>
+</main>
+<script>
+const stories=[
+{type:"北京 · 宫城",title:"紫禁城：墙里面的时间",source:"故宫博物院 · 明清北京",images:[
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Forbidden_City_Beijing_China.jpg",credit:"Philip Nalangan · CC BY 4.0",source:"https://commons.wikimedia.org/wiki/File:Forbidden_City_Beijing_China.jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Forbidden_City_Beijing_China1.jpg",credit:"Philip Nalangan · CC BY 4.0",source:"https://commons.wikimedia.org/wiki/File:Forbidden_City_Beijing_China1.jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Forbidden_City_Beijing_China3.jpg",credit:"Philip Nalangan · CC BY 4.0",source:"https://commons.wikimedia.org/wiki/File:Forbidden_City_Beijing_China3.jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/China-beijing-forbidden-city-P1000223.jpg",credit:"Adamantios · CC BY-SA 3.0",source:"https://commons.wikimedia.org/wiki/File:China-beijing-forbidden-city-P1000223.jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Forbidden_city,_Beijing_(5531772131).jpg",credit:"Sam Greenhalgh · CC BY 2.0",source:"https://commons.wikimedia.org/wiki/File:Forbidden_city,_Beijing_(5531772131).jpg"}],facts:["北京 · 故宫","明清时期","宫廷 · 建筑 · 制度"],sources:[["故宫博物院 · 宫廷历史","https://www.dpm.org.cn/explores/courts.html"],["故宫博物院 · 建筑","https://www.dpm.org.cn/explore/buildings.html"],["故宫博物院 · 紫禁城建成","https://www.dpm.org.cn/subject_600/buildingdetails/253789.html"]],body:[
+"清晨，故宫的红墙还没有被游客填满。站在午门外，先看到的是墙，再往上看，才是黄色的屋顶。几百年前的人来到这里，也会先面对这道门。只是他们走进去的原因，与今天完全不同。",
+"假如把时间拨回明清时期，一个普通的清晨并不会从“参观故宫”开始。宫门有自己的时间，朝会有自己的时间，仪式有自己的时间。有人负责开门，有人等待召见，有人准备车马，也有人已经在宫墙里的某个院落开始一天的工作。这里不是景点，而是一套正在运转的制度。",
+"午门之后，空间突然变大。太和门、太和殿、中和殿、保和殿沿着中轴线依次展开。人在这样的尺度里很容易变得渺小。广场越大，建筑越高，人的位置就越清楚。这里的建筑并没有大声解释什么，却一直在告诉进入这里的人：什么地方最重要，谁应该站在哪里。",
+"如果继续往里走，最值得注意的反而是那些看不见的规则。宫墙把空间切成一个个不同的区域。门不是单纯的门，它决定谁可以通过；道路也不是普通的道路，它可能对应某种身份和任务。对于皇帝、官员、宫女、太监和守卫来说，同一座宫城意味着完全不同的生活。",
+"想象一个负责宫廷日常事务的人。他每天看到的可能不是太和殿宏大的正面，而是一道院门、一段回廊、一口井、一间房。历史书里不会记录这些普通的动作，但宫城真正能够持续运转，恰恰依靠无数这样的日常。有人送东西，有人打扫，有人传话，有人守门。宏大的历史背后，是非常具体的人。",
+"再想象另一种时间。皇帝举行大典时，太和殿前的空间会突然改变意义。平时空旷的广场成为仪式的一部分，建筑、服饰、队列和声音共同组成秩序。对参加仪式的人来说，每一步都有位置。对今天的游客来说，这些地方只是可以走过的空间。相同的石板，却属于两个完全不同的世界。",
+"明朝结束以后，宫城没有消失。清朝继续使用它。王朝改变了，制度和生活方式也发生变化，但宫门、宫殿和道路仍然留在北京的中心。后来清朝结束，紫禁城又失去了皇宫的身份。一个曾经只属于少数人的空间，逐渐成为公众可以进入的历史场所。",
+"这也是故宫最耐人寻味的地方。建筑保存下来的不仅是形状，还有时间留下的层次。今天看见的一扇门，可能经历过不同朝代；今天站立的一座宫殿，曾经见证过不同的人和不同的决定。建筑没有告诉我们所有答案，却给历史留下了一个真实的现场。",
+"所以走故宫的时候，不妨偶尔停下来，不看宫殿的正面，只看一段墙、一块石阶，或者一扇已经关闭的门。你会发现，历史并不总是宏大的。它也藏在谁能够通过这扇门、谁必须停在门外，以及一个普通人在这里度过怎样的一天。",
+"离开故宫时，城市重新出现。汽车、地铁、人群和手机屏幕，把人带回今天的北京。身后的红墙看起来依旧安静。只是现在再回头看，它已经不只是一个古建筑的外壳，而像一层留在城市里的时间。过去的人曾经在墙里面生活，而今天的人走进去，是为了理解那个已经结束的世界。"]},
+{type:"北京 · 前门",title:"前门：城门外的北京",source:"前门地区 · 北京城市生活",images:[
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Qianmen_Street_1.jpg",credit:"HéctorTabaré · CC BY 2.0",source:"https://commons.wikimedia.org/wiki/File:Qianmen_Street_1.jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Qianmen_street,_Beijing,_China_-_北京，中国_(10226037583).jpg",credit:"Romain Pontida · CC BY-SA 2.0",source:"https://commons.wikimedia.org/wiki/File:Qianmen_street,_Beijing,_China_-_北京，中国_(10226037583).jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Qianmen_Street_(2916221935).jpg",credit:"Caitriana Nicholson · CC BY-SA 2.0",source:"https://commons.wikimedia.org/wiki/File:Qianmen_Street_(2916221935).jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Qianmen_Street_(2916211953).jpg",credit:"Caitriana Nicholson · CC BY-SA 2.0",source:"https://commons.wikimedia.org/wiki/File:Qianmen_Street_(2916211953).jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/BeijingTiananmenSquaregatepicture2.jpg",credit:"Saad Akhtar · CC BY 2.0",source:"https://commons.wikimedia.org/wiki/File:BeijingTiananmenSquaregatepicture2.jpg"}],facts:["北京 · 正阳门","明清至今","城门 · 商业 · 城市生活"],sources:[["北京市政府 · 正阳门","https://www.beijing.gov.cn/renwen/rwzyd/gdwh/zym/202107/t20210706_2430351.html"],["北京市政府 · 北京中轴线","https://www.beijing.gov.cn/renwen/zt/pwzz/"]],body:[
+"早上的前门，适合从声音开始认识。脚步声从街道的一头传过来，店铺慢慢打开，车辆经过，游客开始聚集。这里看起来已经很现代，但如果把今天的声音一层层剥掉，前门留下的其实是一段很长的城市记忆。",
+"很久以前，人们进入北京，并不是从今天熟悉的商场和地铁口开始。城门决定了人如何进入城市，也决定了货物和消息怎样流动。正阳门位于北京内城南面，是城市重要的门户之一。门内是城市，门外是通往更远地方的道路。于是，“进城”本身就成为一种经验。",
+"想象一个第一次来到北京的商人。他带着货物来到城门附近，首先要做的不是寻找著名景点，而是寻找可以交易、休息和吃饭的地方。有人接待他，有人替他搬货，有人给牲口准备饲料，也有人告诉他哪条街可以买到需要的东西。对这样的人来说，前门不是一张地图上的标记，而是北京最先向他展开的生活。",
+"再换一个人。一个每天在附近做生意的人，可能根本不会注意城门有多雄伟。他更在意今天客人多不多，货物有没有按时送到，隔壁店铺有没有换了招牌。城市真正的繁华，往往就是这样发生的。不是某一天突然出现，而是很多普通人每天重复自己的工作，慢慢把一条街变成了一座城市的商业记忆。",
+"前门附近长期聚集着各种行业。饭庄、茶馆、旅店、药铺和其他商铺，让这里形成了复杂的生活网络。一个人来吃饭，可能顺便买东西；一个外地人住下来，可能认识新的商人；一个店铺需要货物，又会把需求传给另一条街。商业不是一排店铺，而是一群人互相连接之后形成的城市系统。",
+"这也是前门与故宫很不一样的地方。故宫的空间强调中心、秩序和等级，前门的空间则不断被人流打乱。有人往南，有人往北；有人赶路，有人停下来；有人做生意，有人只是路过。街道没有要求所有人以同一种方式使用它，城市反而因为不同的人同时出现而变得热闹。",
+"时代变化之后，前门也跟着变化。交通方式改变，新的商业区域出现，人们购物和生活的方式不断更新。老店会消失，新店会出现，街道会修缮，建筑会改变用途。对城市来说，这些变化并不意味着历史被简单替换，而是旧的空间不断被新的生活重新使用。",
+"所以今天走前门，不一定要急着寻找“最老”的东西。可以观察一个店门口的人，也可以看一条街上的人从哪里来、往哪里去。城市历史有时候并不藏在说明牌里，而藏在人流的方向里。",
+"如果站在正阳门附近回头看，会发现前门其实一直在做同一件事：把城市和外面的世界连接起来。过去，它连接城内与城外、商人与市场、旅人与北京；今天，它连接历史街区与现代城市，也连接第一次来北京的人和这座城市的过去。",
+"夜晚的前门又是另一幅画面。灯光亮起来，街道变得缓慢，白天的商业节奏逐渐退去。建筑留下轮廓，人群继续经过。也许这就是前门最特别的地方：它从来没有只属于某一个时代。城门可以保存，店铺可以更换，交通可以改变，但城市不断迎接陌生人、容纳生意、制造相遇的能力，一直延续到今天。"]},
+{type:"北京 · 胡同",title:"胡同：一座城市的日常",source:"北京胡同地区 · 城市生活",images:[
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Hutong,_BJ_(2917153763).jpg",credit:"Caitriana Nicholson · CC BY-SA 2.0",source:"https://commons.wikimedia.org/wiki/File:Hutong,_BJ_(2917153763).jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Hutong_beijing.JPG",credit:"Denis Yuen · CC BY-SA 2.5",source:"https://commons.wikimedia.org/wiki/File:Hutong_beijing.JPG"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/A_Beijing_hutong_(2661851240).jpg",credit:"Peter Dowley · CC BY 2.0",source:"https://commons.wikimedia.org/wiki/File:A_Beijing_hutong_(2661851240).jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/2016-08-13_Beijing_Hutong_near_Forbidden_City_anagoria.jpg",credit:"anagoria · CC BY 3.0",source:"https://commons.wikimedia.org/wiki/File:2016-08-13_Beijing_Hutong_near_Forbidden_City_anagoria.jpg"},
+{url:"https://commons.wikimedia.org/wiki/Special:Redirect/file/Traditional_Hutong_neighborhood_in_Beijing_(3019999456).jpg",credit:"Dave Proffer · CC BY 2.0",source:"https://commons.wikimedia.org/wiki/File:Traditional_Hutong_neighborhood_in_Beijing_(3019999456).jpg"}],facts:["北京老城 · 胡同","元明清至今","四合院 · 邻里 · 城市生活"],sources:[["北京市政府 · 老北京四合院","https://www.beijing.gov.cn/tsbj/sxym/202007/t20200713_1946380.html"],["北京市政府 · 北京胡同保护","https://ghzrzyw.beijing.gov.cn/zhengwuxinxi/zxzt/bjcsztgh20162035/202001/t20200102_1554606.html"]],body:[
+"假设你没有目的地。没有故宫，没有广场，也没有一定要拍下来的建筑。你只是从北京的一条大路拐进去，走进一条胡同。路突然变窄了，车声远了一点，墙变多了，院门也多了。你不知道这条路有多长，却开始注意一些刚才不会注意的东西。",
+"一扇门。门环已经有些旧，门旁可能贴着新的通知。再往前，一辆自行车靠在墙边。有人从院子里出来，顺手把门关上。这样的画面没有任何“历史景点”的感觉，却恰恰是胡同最重要的部分：这里首先是生活空间，然后才是文化遗产。",
+"北京传统胡同与四合院之间有很深的联系。院落围合出家庭自己的空间，胡同则把一个个家庭连接起来。于是，城市出现了两个尺度。门里面，是家庭的日常；门外，是邻里共享的道路。一个人可以关上门拥有自己的生活，也可以打开门进入一个更大的社区。",
+"这种距离非常特别。住在胡同里的人，很难完全把邻居当成陌生人。谁家搬来了新东西，哪家院子正在修理，谁家的孩子放学回来了，很多事情都会自然进入邻里之间的视线。并不是所有关系都亲密，但人们知道彼此存在。城市因此拥有了一种现在越来越少见的“熟悉感”。",
+"如果你在早晨走过胡同，看到的可能是买菜的人。中午，街道安静一些。下午，阳光从墙边移动过去。傍晚，饭菜的气味从不同的院门里出来。到了晚上，灯光从门缝和窗户里透出来。一天没有发生什么“大事”，但城市真正的时间，就是由这些小时、这些声音和这些动作组成的。",
+"胡同也有自己的季节。春天可能是院子里的植物先有变化，夏天人们更愿意坐在门口，秋天的阳光变得柔和，冬天则能感受到墙和院落怎样挡住寒风。建筑并不是静止的背景，它会随着天气和人的生活不断改变意义。",
+"当然，今天的胡同已经不是过去的胡同。人口、住房、交通和城市建设改变了很多街区。有些胡同消失了，有些被重新规划，有些得到保护，还有一些变成了咖啡店、工作室或游客经过的街道。对城市来说，这是很自然也很复杂的变化。",
+"于是，一个有意思的问题出现了：如果胡同里的生活改变了，胡同还算不算胡同？也许答案并不只在房屋是否原样保存。真正值得保存的，还包括人与空间之间的关系。人怎样走路，怎样开门，怎样与邻居相遇，怎样在很小的空间里安排自己的生活，这些同样属于城市文化。",
+"你可以在胡同里做一个很简单的实验。走慢一点，不拍照，先听一分钟。听自行车经过，听门开的声音，听远处的汽车，也听院子里模糊的生活声。你会发现，所谓“城市记忆”并不是一种抽象的东西。它其实一直在发生，只是平时我们走得太快。",
+"再走回大街，胡同很快就被高楼和车流包围。刚才那条窄窄的路，好像只是城市里的一个小缝隙。但正是这些小缝隙，让一座巨大城市保留了人的尺度。",
+"北京很大，大到可以用宫殿、城门和大道来理解。但北京也很小，小到可以从一扇院门开始。胡同没有告诉你一个宏大的答案，它只让你看见一个人怎样生活、几个人怎样相遇，以及一座城市怎样在普通的一天里继续存在。",
+"所以离开胡同的时候，不必急着总结它代表什么。记住刚才看到的一扇门、一段墙、一束下午的光，也许就够了。文化并不总是站在高处等待被解释。有时候，它就在你走过的那条小路旁边，安静地过着自己的日子。"]}];
+let current=0,utterance=null,timer=null,startedAt=0,totalSeconds=0,elapsedBeforePause=0;
+let readingChunks=[],playUnits=[],unitIndex=0,chunkIndex=0,chunkElapsed=0,chunkDuration=0,chunkCharsConsumed=0,reading=false,readSpeed=1.0,activeSpeed=1.0;
+
+function show(id){document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));const target=document.getElementById(id);if(!target)return;target.classList.add('active');stopSpeak();window.scrollTo(0,0)}
+function openStory(i){current=i;render();show('reader')}
+
+function buildReadingChunks(text){
+  const sentences=text.split(/(?<=[。！？；])/).map(x=>x.trim()).filter(Boolean);
+  const chunks=[];
+  let buf='';
+  sentences.forEach(s=>{
+    if(!buf){buf=s;return}
+    if((buf+s).length<=105){buf+=s}
+    else{chunks.push(buf);buf=s}
+  });
+  if(buf)chunks.push(buf);
+  return chunks;
+}
+
+function chooseChineseVoice(){
+  if(!('speechSynthesis' in window))return null;
+  const voices=speechSynthesis.getVoices();
+  const cn=voices.filter(v=>/^zh-CN/i.test(v.lang));
+  if(!cn.length)return null;
+  const preferred=['Ting-Ting','Yaoyao','Xiaoxiao','Li-mu','Xiaoyi','普通话'];
+  return cn.sort((a,b)=>{
+    const ai=preferred.findIndex(x=>a.name.includes(x));
+    const bi=preferred.findIndex(x=>b.name.includes(x));
+    return (ai<0?99:ai)-(bi<0?99:bi);
+  })[0];
+}
+if('speechSynthesis' in window){speechSynthesis.onvoiceschanged=()=>{};setTimeout(()=>speechSynthesis.getVoices(),100);}
+
+function render(){
+  const s=stories[current];
+  storyType.textContent=s.type;storyTitle.textContent=s.title;storySource.textContent=s.source;
+  storyHero.innerHTML='';storyBody.style.display="block";
+  cinemaTitle.textContent=s.title;cinemaSource.textContent=s.source;
+  cinemaCaption.textContent=s.images[0].credit;cinemaImageCredit.textContent='图片：'+s.images[0].credit;cinemaImageCredit.href=s.images[0].source;cinemaImage.src=s.images[0].url;cinemaImage.alt=s.title;cinemaImage.dataset.imageNo='0';
+  readingChunks=buildReadingChunks(s.body.join(''));
+  cinemaSubtitle.textContent=readingChunks[0]||'';
+  storyFacts.innerHTML=s.facts.map(x=>'<span class="info-chip">'+x+'</span>').join('');
+  storySources.innerHTML=s.sources.map(x=>'<a href="'+x[1]+'" target="_blank" rel="noopener">'+x[0]+' ↗</a>').join(' · ');
+  audioTitle.textContent=s.title;resetAudio();
+}
+
+function estimateDuration(text){return Math.max(20,Math.round(text.length/4.3))}
+function formatTime(sec){sec=Math.max(0,Math.floor(sec));return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
+
+function resetAudio(){
+  clearInterval(timer);timer=null;reading=false;readingChunks=[];
+  audioProgress.style.width='0%';audioElapsed.textContent='0:00';
+  totalSeconds=estimateDuration(stories[current].body.join(''));
+  audioDuration.textContent=formatTime(totalSeconds);
+  audioButton.textContent='▶';elapsedBeforePause=0;chunkIndex=0;chunkElapsed=0;chunkDuration=0;
+}
+
+function showChunk(i){
+  const s=stories[current];
+  if(!readingChunks.length)return;
+  chunkIndex=Math.max(0,Math.min(i,readingChunks.length-1));
+  const text=readingChunks[chunkIndex];
+  const next=readingChunks[chunkIndex+1]||'';
+  const imageNo=Math.min(s.images.length-1,chunkIndex % s.images.length);
+  const image=s.images[imageNo];
+  cinemaSubtitle.innerHTML='<span class="current-line">'+text+'</span>'+ (next?'<span class="next-line">'+next+'</span>':'');
+  cinemaCaption.textContent=image.credit;
+  cinemaImageCredit.textContent='图片：'+image.credit;
+  cinemaImageCredit.href=image.source;
+  cinemaSubtitle.scrollTop=0;
+  if(imageNo!==Number(cinemaImage.dataset.imageNo)){
+    cinemaImage.dataset.imageNo=String(imageNo);
+    cinemaImage.style.opacity='0.15';
+    setTimeout(()=>{cinemaImage.src=image.url;cinemaImage.style.opacity='1'},220);
+  }
+}
+
+function speakUnit(i){
+  if(!reading||i>=playUnits.length){finishSpeak();return}
+  unitIndex=i;
+  const unit=playUnits[i];
+  chunkIndex=unit.chunkIndex;
+  showChunk(chunkIndex);
+  activeSpeed=readSpeed;
+  chunkElapsed=0;
+  chunkDuration=Math.max(1.2,unit.text.length/(4.3*activeSpeed));
+  chunkCharsConsumed=0;
+  startedAt=Date.now();
+  utterance=new SpeechSynthesisUtterance(unit.text);
+  const voices=speechSynthesis.getVoices().filter(v=>/^zh-CN/i.test(v.lang));
+  const chineseVoice=window.worldVoiceName ? voices.find(v=>v.name===window.worldVoiceName) : chooseChineseVoice();
+  utterance.lang=chineseVoice?.lang||'zh-CN';
+  if(chineseVoice)utterance.voice=chineseVoice;
+  utterance.rate=activeSpeed;
+  utterance.pitch=1.0;
+  utterance.volume=1.0;
+  utterance.onend=()=>{if(reading){speakUnit(unitIndex+1)}};
+  utterance.onerror=()=>{if(reading){finishSpeak()}};
+  speechSynthesis.speak(utterance);
+}
+
+function toggleSpeak(){
+  if(!('speechSynthesis' in window)){alert('当前浏览器不支持朗读，请用 Safari 打开。');return}
+  if(speechSynthesis.speaking&&!speechSynthesis.paused){chunkElapsed=(Date.now()-startedAt)/1000;speechSynthesis.pause();audioButton.textContent='▶';return}
+  if(speechSynthesis.paused){startedAt=Date.now()-chunkElapsed*1000;speechSynthesis.resume();audioButton.textContent='Ⅱ';return}
+  speak();
+}
+
+function speak(){
+  if(!('speechSynthesis' in window))return;
+  if(reading&&speechSynthesis.paused){speechSynthesis.resume();audioButton.textContent='Ⅱ';return}
+  stopSpeak();
+  reading=true;chunkIndex=0;unitIndex=0;startedAt=Date.now();elapsedBeforePause=0;audioButton.textContent='Ⅱ';
+  readingChunks=stories[current].body.map(x=>x.trim()).filter(Boolean);
+  playUnits=[];
+  readingChunks.forEach((paragraph,pi)=>{
+    const sentences=paragraph.split(/(?<=[。！？；])/).map(x=>x.trim()).filter(Boolean);
+    sentences.forEach(sentence=>{
+      if(sentence.length<=24){
+        playUnits.push({text:sentence,chunkIndex:pi});
+        return;
+      }
+      let rest=sentence;
+      while(rest.length>0){
+        if(rest.length<=24){
+          playUnits.push({text:rest,chunkIndex:pi});
+          break;
+        }
+        let cut=Math.min(16,rest.length);
+        const marks='，、；：';
+        for(let j=Math.min(15,rest.length-1);j>=8;j--){
+          if(marks.includes(rest[j])){cut=j+1;break}
+        }
+        playUnits.push({text:rest.slice(0,cut),chunkIndex:pi});
+        rest=rest.slice(cut).trim();
+      }
+    });
+  });
+  totalSeconds=playUnits.reduce((sum,u)=>sum+Math.max(1.2,u.text.length/4.3),0);
+  audioDuration.textContent=formatTime(totalSeconds);
+  showChunk(0);
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    if(!reading)return;
+    if(speechSynthesis.speaking&&!speechSynthesis.paused){
+      chunkElapsed=(Date.now()-startedAt)/1000;
+      const completedChars=playUnits.slice(0,unitIndex).reduce((a,u)=>a+u.text.length,0);
+      const currentUnit=playUnits[unitIndex]||{text:''};
+      const currentChars=Math.min(currentUnit.text.length,Math.floor(chunkElapsed*4.3*activeSpeed));
+      const totalChars=playUnits.reduce((a,u)=>a+u.text.length,0);
+      const spokenChars=Math.min(totalChars,completedChars+currentChars);
+      const p=Math.min(99.5,spokenChars/totalChars*100);
+      const elapsed=Math.min(totalSeconds,totalSeconds*p/100);
+      audioProgress.style.width=p+'%';audioElapsed.textContent=formatTime(elapsed);
+    }
+  },200);
+  speakUnit(0);
+}
+
+function finishSpeak(){
+  reading=false;clearInterval(timer);timer=null;
+  audioProgress.style.width='100%';audioElapsed.textContent=formatTime(totalSeconds);audioButton.textContent='▶';
+}
+
+function stopSpeak(){
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  clearInterval(timer);timer=null;reading=false;audioButton.textContent='▶';
+  audioProgress.style.width='0%';audioElapsed.textContent='0:00';unitIndex=0;chunkIndex=0;chunkElapsed=0;chunkDuration=0;chunkCharsConsumed=0;
+}
+
+function replaySpeak(){speak()}
+function changeSpeed(){
+  const speeds=[0.8,1.0,1.2,1.5];
+  const n=speeds.indexOf(readSpeed);
+  readSpeed=speeds[(n+1)%speeds.length];
+  speedButton.textContent=readSpeed.toFixed(1)+'×';
+  speedButton.title=reading
+    ? '当前语音片段保持不中断，下一小段立即使用 '+readSpeed.toFixed(1)+'×'
+    : '朗读速度 '+readSpeed.toFixed(1)+'×';
+}
+function changeVoice(){
+  if(!('speechSynthesis' in window)){alert('当前浏览器不支持语音选择。');return}
+  const voices=speechSynthesis.getVoices().filter(v=>/^zh-CN/i.test(v.lang));
+  if(!voices.length){alert('当前 iPhone 没有可用的中文普通话语音。请到“设置 → 辅助功能 → 朗读内容 → 声音”下载增强中文语音。');return}
+  const currentVoice=window.worldVoiceName||'';
+  const idx=Math.max(0,voices.findIndex(v=>v.name===currentVoice));
+  const next=voices[(idx+1)%voices.length];
+  window.worldVoiceName=next.name;
+  alert('已选择中文语音：'+next.name+'。下一段朗读开始生效。');
+}
+function toggleLang(){alert('English interface will be added after the Chinese MVP.')}
+</script>
+</body></html>
