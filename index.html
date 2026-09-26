@@ -109,7 +109,7 @@ const stories=[
 "北京很大，大到可以用宫殿、城门和大道来理解。但北京也很小，小到可以从一扇院门开始。胡同没有告诉你一个宏大的答案，它只让你看见一个人怎样生活、几个人怎样相遇，以及一座城市怎样在普通的一天里继续存在。",
 "所以离开胡同的时候，不必急着总结它代表什么。记住刚才看到的一扇门、一段墙、一束下午的光，也许就够了。文化并不总是站在高处等待被解释。有时候，它就在你走过的那条小路旁边，安静地过着自己的日子。"]}];
 let current=0,utterance=null,timer=null,startedAt=0,totalSeconds=0,elapsedBeforePause=0;
-let readingChunks=[],chunkIndex=0,chunkElapsed=0,chunkDuration=0,chunkOffsetElapsed=0,reading=false,readSpeed=1.0;
+let readingChunks=[],chunkIndex=0,chunkElapsed=0,chunkDuration=0,chunkCharsConsumed=0,reading=false,readSpeed=1.0;
 
 function show(id){document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));const target=document.getElementById(id);if(!target)return;target.classList.add('active');stopSpeak();window.scrollTo(0,0)}
 function openStory(i){current=i;render();show('reader')}
@@ -175,7 +175,7 @@ function speakChunk(i,textOverride,preserveOffset=false){
   const text=textOverride!==undefined?textOverride:readingChunks[i];
   chunkDuration=Math.max(1.2,text.length/(4.3*readSpeed));
   chunkElapsed=0;
-  if(!preserveOffset)chunkOffsetElapsed=0;
+  chunkCharsConsumed=0;
   startedAt=Date.now();
   utterance=new SpeechSynthesisUtterance(text);
   utterance.lang='zh-CN';utterance.rate=readSpeed;
@@ -197,7 +197,7 @@ function speak(){
   stopSpeak();
   reading=true;chunkIndex=0;startedAt=Date.now();elapsedBeforePause=0;audioButton.textContent='Ⅱ';
   readingChunks=stories[current].body.map(x=>x.trim()).filter(Boolean);
-  totalSeconds=readingChunks.reduce((sum,t)=>sum+Math.max(1.2,t.length/(4.3*readSpeed)),0);
+  totalSeconds=readingChunks.reduce((sum,t)=>sum+Math.max(1.2,t.length/4.3),0);
   audioDuration.textContent=formatTime(totalSeconds);
   showChunk(0);
   clearInterval(timer);
@@ -205,9 +205,11 @@ function speak(){
     if(!reading)return;
     if(speechSynthesis.speaking&&!speechSynthesis.paused){
       chunkElapsed=(Date.now()-startedAt)/1000;
-      const completed=readingChunks.slice(0,chunkIndex).reduce((a,t)=>a+Math.max(1.2,t.length/(4.3*readSpeed)),0);
-      const elapsed=Math.min(totalSeconds,completed+chunkOffsetElapsed+Math.min(chunkDuration,chunkElapsed));
-      const p=Math.min(99.5,elapsed/totalSeconds*100);
+      const completedChars=readingChunks.slice(0,chunkIndex).reduce((a,t)=>a+t.length,0);
+      const currentChars=Math.min(readingChunks[chunkIndex].length,Math.floor(chunkElapsed*4.3*readSpeed));
+      const spokenChars=Math.min(readingChunks.join('').length,completedChars+chunkCharsConsumed+currentChars);
+      const p=Math.min(99.5,spokenChars/readingChunks.join('').length*100);
+      const elapsed=Math.min(totalSeconds,totalSeconds*p/100);
       audioProgress.style.width=p+'%';audioElapsed.textContent=formatTime(elapsed);
     }
   },200);
@@ -222,7 +224,7 @@ function finishSpeak(){
 function stopSpeak(){
   if('speechSynthesis' in window)speechSynthesis.cancel();
   clearInterval(timer);timer=null;reading=false;audioButton.textContent='▶';
-  audioProgress.style.width='0%';audioElapsed.textContent='0:00';chunkIndex=0;chunkElapsed=0;chunkDuration=0;
+  audioProgress.style.width='0%';audioElapsed.textContent='0:00';chunkIndex=0;chunkElapsed=0;chunkDuration=0;chunkCharsConsumed=0;
 }
 
 function replaySpeak(){speak()}
@@ -230,19 +232,23 @@ function changeSpeed(){
   const speeds=[0.8,1.0,1.2,1.5];
   const n=speeds.indexOf(readSpeed);
   const nextSpeed=speeds[(n+1)%speeds.length];
-  readSpeed=nextSpeed;
-  speedButton.textContent=readSpeed.toFixed(1)+'×';
 
-  if(!reading)return;
+  if(!reading){
+    readSpeed=nextSpeed;
+    speedButton.textContent=readSpeed.toFixed(1)+'×';
+    return;
+  }
 
   const wasPaused=speechSynthesis.paused;
   const oldText=readingChunks[chunkIndex]||'';
   const elapsedNow=speechSynthesis.speaking ? (Date.now()-startedAt)/1000 : chunkElapsed;
-  const fraction=chunkDuration>0?Math.min(.98,Math.max(0,elapsedNow/chunkDuration)):0;
-  const charsRead=Math.min(Math.max(0,oldText.length-1),Math.floor(oldText.length*fraction));
-  const remaining=oldText.slice(charsRead);
+  const charsRead=Math.min(Math.max(0,oldText.length-1),Math.floor(elapsedNow*4.3*readSpeed));
 
-  chunkOffsetElapsed+=Math.min(chunkDuration,elapsedNow);
+  chunkCharsConsumed=Math.min(oldText.length-1,chunkCharsConsumed+charsRead);
+  const remaining=oldText.slice(chunkCharsConsumed);
+
+  readSpeed=nextSpeed;
+  speedButton.textContent=readSpeed.toFixed(1)+'×';
   speechSynthesis.cancel();
 
   if(!remaining){
@@ -263,7 +269,7 @@ function changeSpeed(){
     speechSynthesis.speak(utterance);
     startedAt=Date.now();
     if(wasPaused){
-      setTimeout(()=>{if(reading&&speechSynthesis.speaking) speechSynthesis.pause()},30);
+      setTimeout(()=>{if(reading&&speechSynthesis.speaking)speechSynthesis.pause()},30);
     }
   },120);
 }
