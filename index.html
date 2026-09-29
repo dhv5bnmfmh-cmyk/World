@@ -50,7 +50,7 @@ h1{font-size:clamp(28px,6vw,48px);line-height:1.1;margin:22px 0 10px}.sub{color:
 </section>
 
 <section id="reader" class="panel reader">
-<button class="back" onclick="show('beijing')">← 北京</button>
+<button class="back" onclick="location.href='./beijing.html'">← 北京</button>
 <div class="eyebrow" id="storyType"></div><h1 id="storyTitle"></h1><p class="meta" id="storySource"></p>
 <figure class="story-hero" id="storyHero"></figure>
 <article class="story" id="storyBody"><div class="cinema" id="cinema"><img class="cinema-image" id="cinemaImage" src="" alt=""><div class="cinema-top"><span class="cinema-title" id="cinemaTitle"></span><span class="cinema-source" id="cinemaSource"></span></div><div class="cinema-caption" id="cinemaCaption"></div><a class="cinema-image-credit" id="cinemaImageCredit" href="#" target="_blank" rel="noopener">图片来源</a><div class="cinema-subtitle" id="cinemaSubtitle"></div></div></article>
@@ -329,5 +329,12 @@ function changeVoice(){
   alert('已选择中文语音：'+next.name+'。下一段朗读开始生效。');
 }
 function toggleLang(){alert('English interface will be added after the Chinese MVP.')}
+window.addEventListener('DOMContentLoaded',()=>{
+  const storyParam=new URLSearchParams(window.location.search).get('story');
+  const storyIndex=Number(storyParam);
+  if(storyParam!==null && Number.isInteger(storyIndex) && stories[storyIndex]){
+    openStory(storyIndex);
+  }
+});
 </script>
 </body></html>
