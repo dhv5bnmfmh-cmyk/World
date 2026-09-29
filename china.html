@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#10131a">
 <title>中国 · 世界文化探索</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0d1016;color:#f4f1e8;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}.app{min-height:100vh;max-width:1100px;margin:auto;background:radial-gradient(circle at 50% 0,#26344b 0,#0d1016 42%);padding:18px 16px 48px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:34px}.brand{font-size:12px;letter-spacing:2.5px;color:#b8aa88}.lang{border:1px solid #3a4352;background:#151a23;color:#ddd8ca;border-radius:20px;padding:6px 11px}.back{display:inline-block;color:#b8aa88;text-decoration:none;font-size:14px;margin-bottom:22px}.eyebrow{font-size:11px;color:#9d9277;letter-spacing:1.7px}.title{font-size:clamp(38px,10vw,64px);line-height:1.1;margin:0 0 12px}.sub{color:#aeb5c0;line-height:1.8;margin:0 0 34px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{display:block;text-decoration:none;color:#f6f1e5;background:#151a22;border:1px solid #2c3441;border-radius:18px;padding:20px;min-height:150px}.card h2{margin:8px 0;font-size:24px}.card p{margin:0;color:#8f98a5;font-size:13px;line-height:1.7}.soon{opacity:.55}
+*{box-sizing:border-box}body{margin:0;background:#0d1016;color:#f4f1e8;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}.app{min-height:100vh;max-width:1100px;margin:auto;background:radial-gradient(circle at 50% 0,#26344b 0,#0d1016 42%);padding:18px 16px 48px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:34px}.brand{font-size:12px;letter-spacing:2.5px;color:#b8aa88}.lang{border:1px solid #3a4352;background:#151a23;color:#ddd8ca;border-radius:20px;padding:6px 11px}.back{display:inline-block;color:#b8aa88;text-decoration:none;font-size:14px;margin-bottom:22px}.eyebrow{font-size:11px;color:#9d9277;letter-spacing:1.7px}.title{font-size:clamp(38px,10vw,64px);line-height:1.1;margin:0 0 12px}.sub{color:#aeb5c0;line-height:1.8;margin:0 0 34px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.city-view{display:none}.city-view:target{display:block}.city-view:target~.country-view{display:none}.city-view .cards{margin-top:12px}.city-view .back{margin-bottom:22px}.card{display:block;text-decoration:none;color:#f6f1e5;background:#151a22;border:1px solid #2c3441;border-radius:18px;padding:20px;min-height:150px}.card h2{margin:8px 0;font-size:24px}.card p{margin:0;color:#8f98a5;font-size:13px;line-height:1.7}.soon{opacity:.55}
 </style>
 </head>
 <body>
@@ -16,11 +16,29 @@
 <div class="eyebrow">🇨🇳 国家</div>
 <h1 class="title">中国</h1>
 <p class="sub">从城市开始，认识中国。先从北京开始。</p>
-<section class="cards">
-<a class="card" href="./beijing.html">
+<section class="cards country-view">
+<a class="card" href="#beijing">
 <div class="eyebrow">01 · 首都</div><h2>北京</h2><p>故宫、前门、胡同，从城市空间进入真实的生活与历史。</p>
 </a>
 <div class="card soon"><div class="eyebrow">COMING SOON</div><h2>更多城市</h2><p>上海、南京、西安、成都等城市内容持续加入。</p></div>
+</section>
+
+<section id="beijing" class="city-view">
+<a class="back" href="./china.html">← 中国</a>
+<div class="eyebrow">🇨🇳 中国 · 首都</div>
+<h1 class="title">北京</h1>
+<p class="sub">从宫城、城门到胡同，沿着城市空间进入真实的生活与历史。</p>
+<div class="cards">
+<a class="card" href="./index.html?story=0">
+<div class="eyebrow">宫城 · 时间</div><h2>紫禁城：墙里面的时间</h2><p>从故宫的红墙、中轴线与宫廷秩序，进入明清北京的时间。</p>
+</a>
+<a class="card" href="./index.html?story=1">
+<div class="eyebrow">城市 · 前门</div><h2>前门：城门外的北京</h2><p>从正阳门与前门街区，看北京城门、商业与城市生活。</p>
+</a>
+<a class="card" href="./index.html?story=2">
+<div class="eyebrow">生活 · 胡同</div><h2>胡同：一座城市的日常</h2><p>从院门、胡同与邻里关系，看北京老城的日常尺度。</p>
+</a>
+</div>
 </section>
 </main>
 </body>
