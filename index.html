@@ -31,7 +31,7 @@ h1{font-size:clamp(28px,6vw,48px);line-height:1.1;margin:22px 0 10px}.sub{color:
 <h1>从一个地方，<br>认识一个世界。</h1>
 <div class="world">
 <div class="grid"></div><div class="orbit o1"></div><div class="orbit o2"></div><div class="orbit o3"></div><div class="earth"></div>
-<button type="button" id="chinaNode" class="node china">🇨🇳 中国</button><button class="node japan">🇯🇵 日本</button><button class="node europe">🇪🇺 欧洲</button><button class="node usa">🇺🇸 美国</button>
+<a id="chinaNode" class="node china" href="#china" role="button" aria-label="进入中国">🇨🇳 中国</a><button class="node japan">🇯🇵 日本</button><button class="node europe">🇪🇺 欧洲</button><button class="node usa">🇺🇸 美国</button>
 </div>
 </section>
 
@@ -72,7 +72,14 @@ h1{font-size:clamp(28px,6vw,48px);line-height:1.1;margin:22px 0 10px}.sub{color:
 </section>
 </main>
 <script>
-const $id=id=>document.getElementById(id);\nconst chinaNode=$id('chinaNode');\nif(chinaNode) chinaNode.addEventListener('click',()=>show('china'));
+const $id=id=>document.getElementById(id);
+const chinaNode=$id('chinaNode');
+if(chinaNode) chinaNode.addEventListener('click',event=>{
+  event.preventDefault();
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  document.getElementById('china').classList.add('active');
+  window.scrollTo(0,0);
+});
 const storyType=$id('storyType'),storyTitle=$id('storyTitle'),storySource=$id('storySource'),storyHero=$id('storyHero'),storyBody=$id('storyBody'),cinema=$id('cinema'),cinemaTitle=$id('cinemaTitle'),cinemaSource=$id('cinemaSource'),cinemaCaption=$id('cinemaCaption'),cinemaImageCredit=$id('cinemaImageCredit'),cinemaImage=$id('cinemaImage'),cinemaSubtitle=$id('cinemaSubtitle'),storyFacts=$id('storyFacts'),storySources=$id('storySources'),audioTitle=$id('audioTitle'),audioButton=$id('audioButton'),audioProgress=$id('audioProgress'),audioElapsed=$id('audioElapsed'),audioDuration=$id('audioDuration'),speedButton=$id('speedButton');
 const stories=[
 {type:"北京 · 宫城",title:"紫禁城：墙里面的时间",source:"故宫博物院 · 明清北京",images:[
