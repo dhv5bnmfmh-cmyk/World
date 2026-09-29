@@ -17,29 +17,40 @@
 <h1 class="title">中国</h1>
 <p class="sub">从城市开始，认识中国。先从北京开始。</p>
 <section class="cards country-view">
-<a class="card" href="#beijing">
+<a class="card" href="./china.html?city=beijing&v=2">
 <div class="eyebrow">01 · 首都</div><h2>北京</h2><p>故宫、前门、胡同，从城市空间进入真实的生活与历史。</p>
 </a>
 <div class="card soon"><div class="eyebrow">COMING SOON</div><h2>更多城市</h2><p>上海、南京、西安、成都等城市内容持续加入。</p></div>
 </section>
 
 <section id="beijing" class="city-view">
-<a class="back" href="./china.html">← 中国</a>
+<a class="back" href="./china.html?v=2">← 中国</a>
 <div class="eyebrow">🇨🇳 中国 · 首都</div>
 <h1 class="title">北京</h1>
 <p class="sub">从宫城、城门到胡同，沿着城市空间进入真实的生活与历史。</p>
 <div class="cards">
-<a class="card" href="./index.html?story=0">
+<a class="card" href="./index.html?story=0&v=2">
 <div class="eyebrow">宫城 · 时间</div><h2>紫禁城：墙里面的时间</h2><p>从故宫的红墙、中轴线与宫廷秩序，进入明清北京的时间。</p>
 </a>
-<a class="card" href="./index.html?story=1">
+<a class="card" href="./index.html?story=1&v=2">
 <div class="eyebrow">城市 · 前门</div><h2>前门：城门外的北京</h2><p>从正阳门与前门街区，看北京城门、商业与城市生活。</p>
 </a>
-<a class="card" href="./index.html?story=2">
+<a class="card" href="./index.html?story=2&v=2">
 <div class="eyebrow">生活 · 胡同</div><h2>胡同：一座城市的日常</h2><p>从院门、胡同与邻里关系，看北京老城的日常尺度。</p>
 </a>
 </div>
 </section>
 </main>
+<script>
+(function(){
+  const params=new URLSearchParams(location.search);
+  if(params.get('city')==='beijing'){
+    const country=document.querySelector('.country-view');
+    const city=document.getElementById('beijing');
+    if(country)country.style.display='none';
+    if(city)city.style.display='block';
+  }
+})();
+</script>
 </body>
 </html>
