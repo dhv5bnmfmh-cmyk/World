@@ -45,42 +45,114 @@
   const stopBtn=document.getElementById('stopBtn');
   const textEls=[...document.querySelectorAll('.text p')].filter(p=>p.innerText.trim());
   const textNodes=textEls.map(p=>p.innerText.trim());
-  let index=0,stopped=true;
+  let index=0,stopped=true,raf=0,scrollStart=0,scrollTarget=0,scrollStartTime=0,scrollDuration=0,active=null;
+
+  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
+  const speechSeconds=text=>{
+    const chars=(text.match(/[\u3400-\u9fff]/g)||[]).length;
+    const punctuation=(text.match(/[，。！？；：、,.!?;:]/g)||[]).length;
+    const seconds=(chars+punctuation*0.7)/4.65;
+    return clamp(seconds,3.2,22);
+  };
+  const viewportHeight=()=>window.innerHeight||document.documentElement.clientHeight||800;
   function clearHighlight(){textEls.forEach(p=>p.classList.remove('reading'))}
+  function stopAutoScroll(){
+    if(raf)cancelAnimationFrame(raf);
+    raf=0;
+  }
+  function beginAutoScroll(el,duration){
+    stopAutoScroll();
+    const rect=el.getBoundingClientRect();
+    const vh=viewportHeight();
+    const currentY=window.scrollY;
+    const desiredCenter=Math.max(120,vh*0.42);
+    const startY=currentY;
+    const elementCenter=rect.top+rect.height/2;
+    let targetY=currentY;
+    if(elementCenter>vh*0.62 || elementCenter<vh*0.20){
+      targetY=currentY+elementCenter-desiredCenter;
+    }
+    const maxScroll=Math.max(0,document.documentElement.scrollHeight-vh);
+    targetY=clamp(targetY,0,maxScroll);
+
+    const remaining=Math.abs(targetY-startY);
+    if(remaining<8)return;
+
+    scrollStart=startY;
+    scrollTarget=targetY;
+    scrollStartTime=performance.now();
+    scrollDuration=clamp(duration*1000*0.82,1100,Math.max(1400,duration*1000));
+    active={el};
+    function tick(now){
+      if(stopped||!active||active.el!==el)return;
+      const progress=clamp((now-scrollStartTime)/scrollDuration,0,1);
+      const eased=progress;
+      window.scrollTo(0,scrollStart+(scrollTarget-scrollStart)*eased);
+      if(progress<1)raf=requestAnimationFrame(tick);
+      else raf=0;
+    }
+    raf=requestAnimationFrame(tick);
+  }
   function speakNext(){
+    stopAutoScroll();
     clearHighlight();
-    if(stopped||index>=textNodes.length){readBtn.textContent='▶ 朗读';return}
+    if(stopped||index>=textNodes.length){
+      readBtn.textContent='▶ 朗读';
+      return;
+    }
     const current=textEls[index];
     const text=textNodes[index++];
+    const duration=speechSeconds(text);
+    current.classList.add('reading');
+    current.scrollIntoView({behavior:'smooth',block:'center'});
     const u=new SpeechSynthesisUtterance(text);
     u.lang='zh-CN';u.rate=.92;u.pitch=1;
     const voices=speechSynthesis.getVoices();
     const v=voices.find(x=>/^zh-CN$/i.test(x.lang))||voices.find(x=>/^zh/i.test(x.lang));
     if(v)u.voice=v;
+
     u.onstart=function(){
-      clearHighlight();
       current.classList.add('reading');
-      current.scrollIntoView({behavior:'smooth',block:'center'});
+      beginAutoScroll(current,duration);
     };
-    u.onend=speakNext;
-    u.onerror=function(){if(!stopped)speakNext()};
-    current.classList.add('reading');
-    current.scrollIntoView({behavior:'smooth',block:'center'});
+    u.onboundary=function(){
+      if(!stopped && !speechSynthesis.paused) beginAutoScroll(current,duration);
+    };
+    u.onend=function(){
+      stopAutoScroll();
+      speakNext();
+    };
+    u.onerror=function(){
+      stopAutoScroll();
+      if(!stopped)speakNext();
+    };
     speechSynthesis.speak(u);
   }
   readBtn.onclick=function(){
     speechSynthesis.cancel();
+    stopAutoScroll();
+    clearHighlight();
     index=0;stopped=false;readBtn.textContent='▶ 朗读中';
-    setTimeout(speakNext,80);
+    setTimeout(speakNext,100);
   };
   pauseBtn.onclick=function(){
-    if(speechSynthesis.paused)speechSynthesis.resume();
-    else if(speechSynthesis.speaking)speechSynthesis.pause();
+    if(speechSynthesis.paused){
+      speechSynthesis.resume();
+      if(active&&active.el)beginAutoScroll(active.el,speechSeconds(active.el.innerText));
+    }else if(speechSynthesis.speaking){
+      speechSynthesis.pause();
+      stopAutoScroll();
+    }
   };
   stopBtn.onclick=function(){
-    stopped=true;index=0;speechSynthesis.cancel();clearHighlight();readBtn.textContent='▶ 朗读';
+    stopped=true;index=0;
+    speechSynthesis.cancel();
+    stopAutoScroll();
+    clearHighlight();
+    readBtn.textContent='▶ 朗读';
   };
-  window.addEventListener('pagehide',()=>speechSynthesis.cancel());
+  window.addEventListener('resize',()=>{if(active&&!stopped&&!speechSynthesis.paused)beginAutoScroll(active.el,speechSeconds(active.el.innerText))});
+  window.addEventListener('pagehide',()=>{speechSynthesis.cancel();stopAutoScroll()});
 })();
 </script>
 </body></html>
