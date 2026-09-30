@@ -12,118 +12,130 @@
 </div>
 <script>
 (function(){
+  const synth=window.speechSynthesis;
   const readBtn=document.getElementById('readBtn');
   const pauseBtn=document.getElementById('pauseBtn');
   const stopBtn=document.getElementById('stopBtn');
   const textEls=[...document.querySelectorAll('.text p')].filter(p=>p.innerText.trim());
   const textNodes=textEls.map(p=>p.innerText.trim());
-  let index=0,stopped=true,raf=0,scrollStart=0,scrollTarget=0,scrollStartTime=0,scrollDuration=0,active=null;
+  let index=0,stopped=true,timer=0,active=null,startedAt=0,duration=0,startY=0,targetY=0;
 
   const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
-  const speechSeconds=text=>{
+  function estimateSeconds(text){
     const chars=(text.match(/[\u3400-\u9fff]/g)||[]).length;
     const punctuation=(text.match(/[，。！？；：、,.!?;:]/g)||[]).length;
-    const seconds=(chars+punctuation*0.7)/4.65;
-    return clamp(seconds,3.2,22);
-  };
-  const viewportHeight=()=>window.innerHeight||document.documentElement.clientHeight||800;
-  function clearHighlight(){textEls.forEach(p=>p.classList.remove('reading'))}
-  function stopAutoScroll(){
-    if(raf)cancelAnimationFrame(raf);
-    raf=0;
+    return clamp((chars+punctuation*.7)/4.7,4,24);
   }
-  function beginAutoScroll(el,duration){
-    stopAutoScroll();
+  function clearHighlight(){
+    textEls.forEach(p=>{
+      p.classList.remove('reading');
+      p.style.removeProperty('color');
+      p.style.removeProperty('background');
+      p.style.removeProperty('box-shadow');
+      p.style.removeProperty('border-radius');
+    });
+  }
+  function stopScroll(){
+    if(timer){cancelAnimationFrame(timer);timer=0}
+    active=null;
+  }
+  function highlight(el){
+    clearHighlight();
+    el.classList.add('reading');
+    el.style.setProperty('color','#fff4cf','important');
+    el.style.setProperty('background','linear-gradient(90deg,rgba(217,207,181,.16),transparent 88%)','important');
+    el.style.setProperty('box-shadow','inset 3px 0 0 #d9cfb5,0 8px 28px rgba(0,0,0,.25)','important');
+    el.style.setProperty('border-radius','10px','important');
+  }
+  function prepareScroll(el,seconds){
+    const vh=window.innerHeight||800;
     const rect=el.getBoundingClientRect();
-    const vh=viewportHeight();
-    const currentY=window.scrollY;
-    const desiredCenter=Math.max(120,vh*0.42);
-    const startY=currentY;
-    const elementCenter=rect.top+rect.height/2;
-    let targetY=currentY;
-    if(elementCenter>vh*0.62 || elementCenter<vh*0.20){
-      targetY=currentY+elementCenter-desiredCenter;
-    }
-    const maxScroll=Math.max(0,document.documentElement.scrollHeight-vh);
-    targetY=clamp(targetY,0,maxScroll);
-
-    const remaining=Math.abs(targetY-startY);
-    if(remaining<8)return;
-
-    scrollStart=startY;
-    scrollTarget=targetY;
-    scrollStartTime=performance.now();
-    scrollDuration=clamp(duration*1000*0.82,1100,Math.max(1400,duration*1000));
-    active={el};
-    function tick(now){
-      if(stopped||!active||active.el!==el)return;
-      const progress=clamp((now-scrollStartTime)/scrollDuration,0,1);
-      const eased=progress;
-      window.scrollTo(0,scrollStart+(scrollTarget-scrollStart)*eased);
-      if(progress<1)raf=requestAnimationFrame(tick);
-      else raf=0;
-    }
-    raf=requestAnimationFrame(tick);
+    const current=window.scrollY;
+    const comfortableTop=vh*.28;
+    let desired=current;
+    if(rect.top>vh*.55) desired=current+(rect.top-comfortableTop);
+    else if(rect.bottom<vh*.18) desired=current-(comfortableTop-rect.top);
+    desired=clamp(desired,0,Math.max(0,document.documentElement.scrollHeight-vh));
+    startY=current;
+    targetY=desired;
+    startedAt=performance.now();
+    duration=Math.max(1.1,Math.min(seconds*.32,2.8));
+  }
+  function animateScroll(now){
+    if(stopped||!active)return;
+    const progress=clamp((now-startedAt)/(duration*1000),0,1);
+    const eased=progress<.5?2*progress*progress:1-Math.pow(-2*progress+2,2)/2;
+    window.scrollTo(0,startY+(targetY-startY)*eased);
+    if(progress<1)timer=requestAnimationFrame(animateScroll);
+    else timer=0;
+  }
+  function startParagraph(el,text){
+    const seconds=estimateSeconds(text);
+    active=el;
+    highlight(el);
+    prepareScroll(el,seconds);
+    if(Math.abs(targetY-startY)>4)timer=requestAnimationFrame(animateScroll);
+    return seconds;
   }
   function speakNext(){
-    stopAutoScroll();
-    clearHighlight();
+    stopScroll();
     if(stopped||index>=textNodes.length){
+      clearHighlight();
       readBtn.textContent='▶ 朗读';
       return;
     }
-    const current=textEls[index];
+    const el=textEls[index];
     const text=textNodes[index++];
-    const duration=speechSeconds(text);
-    current.classList.add('reading');
-    current.scrollIntoView({behavior:'smooth',block:'center'});
+    const seconds=startParagraph(el,text);
     const u=new SpeechSynthesisUtterance(text);
-    u.lang='zh-CN';u.rate=.92;u.pitch=1;
-    const voices=speechSynthesis.getVoices();
-    const v=voices.find(x=>/^zh-CN$/i.test(x.lang))||voices.find(x=>/^zh/i.test(x.lang));
-    if(v)u.voice=v;
+    u.lang='zh-CN';
+    u.rate=.92;
+    u.pitch=1;
+    const voices=synth.getVoices();
+    const voice=voices.find(v=>/^zh-CN$/i.test(v.lang))||voices.find(v=>/^zh/i.test(v.lang));
+    if(voice)u.voice=voice;
 
-    u.onstart=function(){
-      current.classList.add('reading');
-      beginAutoScroll(current,duration);
-    };
-    u.onboundary=function(){
-      if(!stopped && !speechSynthesis.paused) beginAutoScroll(current,duration);
-    };
     u.onend=function(){
-      stopAutoScroll();
+      stopScroll();
       speakNext();
     };
     u.onerror=function(){
-      stopAutoScroll();
+      stopScroll();
       if(!stopped)speakNext();
     };
-    speechSynthesis.speak(u);
+    synth.speak(u);
   }
+
   readBtn.onclick=function(){
-    speechSynthesis.cancel();
-    stopAutoScroll();
+    synth.cancel();
+    stopScroll();
     clearHighlight();
-    index=0;stopped=false;readBtn.textContent='▶ 朗读中';
-    setTimeout(speakNext,100);
+    index=0;
+    stopped=false;
+    readBtn.textContent='▶ 朗读中';
+    speakNext();
   };
   pauseBtn.onclick=function(){
-    if(speechSynthesis.paused){
-      speechSynthesis.resume();
-      if(active&&active.el)beginAutoScroll(active.el,speechSeconds(active.el.innerText));
-    }else if(speechSynthesis.speaking){
-      speechSynthesis.pause();
-      stopAutoScroll();
+    if(synth.paused){
+      synth.resume();
+      if(active&&!stopped){
+        startedAt=performance.now();
+        duration=Math.max(1.1,Math.min(estimateSeconds(active.innerText)*.32,2.8));
+        if(!timer)timer=requestAnimationFrame(animateScroll);
+      }
+    }else if(synth.speaking){
+      synth.pause();
+      stopScroll();
     }
   };
   stopBtn.onclick=function(){
-    stopped=true;index=0;
-    speechSynthesis.cancel();
-    stopAutoScroll();
+    stopped=true;
+    index=0;
+    synth.cancel();
+    stopScroll();
     clearHighlight();
     readBtn.textContent='▶ 朗读';
   };
-  window.addEventListener('resize',()=>{if(active&&!stopped&&!speechSynthesis.paused)beginAutoScroll(active.el,speechSeconds(active.el.innerText))});
-  window.addEventListener('pagehide',()=>{speechSynthesis.cancel();stopAutoScroll()});
+  window.addEventListener('pagehide',()=>{synth.cancel();stopScroll()});
 })();
 </script></body></html>
