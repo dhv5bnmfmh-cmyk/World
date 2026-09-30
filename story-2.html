@@ -5,7 +5,7 @@
 <meta name="theme-color" content="#080b10"><title>胡同：一座城市的日常 · 世界文化探索</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#080b10;color:#f4f1e8;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}.wrap{max-width:900px;margin:auto}.back{position:fixed;top:14px;left:14px;z-index:20;color:#fff;text-decoration:none;background:#0d1016cc;border:1px solid #ffffff22;border-radius:999px;padding:9px 13px;backdrop-filter:blur(12px)}header{padding:76px 20px 30px}.eyebrow{font-size:11px;color:#b8aa88;letter-spacing:1.7px}.title{font-size:clamp(32px,8vw,56px);line-height:1.15;margin:10px 0}.source{color:#9da5b1;font-size:13px}.intro{font-size:19px;line-height:1.95;color:#d8d4ca;margin-top:24px}.walk{padding:0 20px 36px}.step{position:relative;padding:0 0 34px 34px;border-left:1px solid #3a4352}.step:last-child{border-left-color:transparent}.step:before{content:"";position:absolute;left:-6px;top:3px;width:11px;height:11px;border-radius:50%;background:#d9cfb5;box-shadow:0 0 0 5px #d9cfb514}.label{font-size:11px;letter-spacing:1.5px;color:#b8aa88;margin-bottom:8px}.photo{margin:0 0 16px;border-radius:18px;overflow:hidden;background:#10151d;border:1px solid #252d39}.photo img{display:block;width:100%;max-height:62vh;object-fit:contain;background:#05070a}.caption{padding:9px 13px;color:#89919e;font-size:11px}.text{font-size:18px;line-height:1.9}.text p{margin:0 0 20px}.text p:last-child{margin-bottom:0}.note{margin:14px 0 0;padding:12px 14px;border:1px solid #2d3541;border-radius:12px;color:#aeb5c0;font-size:13px;line-height:1.7}.credit{font-size:10px;color:#89919e;margin-top:9px}.sources{margin:0 20px 30px;padding:14px 0;border-top:1px solid #252d39;color:#89919e;font-size:11px;line-height:1.7}.sources div{color:#b8aa88;margin-bottom:5px}.sources a{display:block;color:#9da5b1;text-decoration:none;margin:2px 0}.end{padding:20px 20px 80px;text-align:center;color:#9da5b1}.home{display:inline-block;margin-top:15px;color:#d9cfb5;text-decoration:none;border:1px solid #4a4b4d;border-radius:999px;padding:10px 16px}
-</style>
+.read-char{display:inline;transition:color .06s ease,background-color .06s ease,text-shadow .06s ease;border-radius:3px}.read-char.speaking{color:#ffe7aa!important;background:rgba(255,231,170,.16);text-shadow:0 0 10px rgba(255,231,170,.34);font-weight:700}.text p.reading{background:transparent}</style>
 
 <style>
 #readerBox{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:8px;padding:8px 10px;background:#111722ee;border:1px solid #ffffff20;border-radius:999px;box-shadow:0 8px 30px #0008;backdrop-filter:blur(14px)}
@@ -47,9 +47,9 @@
   const pauseBtn=document.getElementById('pauseBtn');
   const stopBtn=document.getElementById('stopBtn');
   const textEls=[...document.querySelectorAll('.text p')].filter(p=>p.innerText.trim());
-
   const originals=textEls.map(p=>p.innerText);
   const charEls=[];
+
   textEls.forEach((p,pi)=>{
     const text=originals[pi];
     p.textContent='';
@@ -64,76 +64,119 @@
     charEls.push(chars);
   });
 
-  let index=0,stopped=true,activeChars=[],fallbackTimer=0,lastScrollChar=-1;
+  let paragraphIndex=0;
+  let stopped=true;
+  let paused=false;
+  let fallbackFrame=0;
+  let followFrame=0;
+  let currentChar=0;
+  let speechStartedAt=0;
+  let speechDuration=0;
+  let boundaryChar=0;
+  let boundaryAt=0;
+
   const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
 
   function clearMarks(){
-    textEls.forEach(p=>p.classList.remove('reading'));
     charEls.flat().forEach(s=>s.classList.remove('speaking'));
   }
 
-  function markChar(pi,charIndex){
+  function paintChar(pi,idx){
     const chars=charEls[pi]||[];
     if(!chars.length)return;
-    const idx=clamp(charIndex,0,chars.length-1);
-    chars.forEach((s,i)=>s.classList.toggle('speaking',i===idx));
-
-    const current=chars[idx];
-    const r=current.getBoundingClientRect();
-    const vh=window.innerHeight||800;
-
-    if(idx===0 || idx-lastScrollChar>=5 || r.top>vh*.70 || r.bottom<vh*.16){
-      lastScrollChar=idx;
-      const target=vh*.36;
-      if(r.top>vh*.62 || r.bottom<vh*.16){
-        const delta=r.top-target;
-        if(Math.abs(delta)>12){
-          window.scrollBy({top:delta,behavior:'smooth'});
-        }
-      }
-    }
+    const safe=clamp(idx,0,chars.length-1);
+    currentChar=safe;
+    chars.forEach((s,i)=>s.classList.toggle('speaking',i===safe));
   }
 
   function estimateSeconds(text){
     const chars=[...text].length;
     const punctuation=(text.match(/[，。！？；：、,.!?;:]/g)||[]).length;
-    return clamp((chars+punctuation*.65)/4.65,4,26);
+    const pauses=punctuation*.22;
+    return clamp((chars/4.35)+pauses,3.5,32);
   }
 
   function stopFallback(){
-    if(fallbackTimer){cancelAnimationFrame(fallbackTimer);fallbackTimer=0}
+    if(fallbackFrame){
+      cancelAnimationFrame(fallbackFrame);
+      fallbackFrame=0;
+    }
   }
 
-  function startFallback(pi,text,startedAt,duration,baseIndex=0,baseAt=startedAt){
+  function startFallback(pi,text){
     stopFallback();
     const total=[...text].length;
-    function tick(now){
-      if(stopped||synth.paused)return;
-      const remaining=Math.max(1,total-baseIndex);
-      const remainingMs=Math.max(500,duration*1000-Math.max(0,baseAt-startedAt));
-      const progress=clamp((now-baseAt)/remainingMs,0,.999);
-      const idx=Math.min(total-1,baseIndex+Math.floor(progress*remaining));
-      markChar(pi,idx);
-      if(progress<.999)fallbackTimer=requestAnimationFrame(tick);
+    const tick=(now)=>{
+      if(stopped||paused||!synth.speaking)return;
+      const elapsed=Math.max(0,now-speechStartedAt);
+      let idx;
+      if(boundaryAt>0 && boundaryAt>=speechStartedAt && now-boundaryAt<900){
+        const fromBoundary=Math.max(0,boundaryChar);
+        const remaining=Math.max(1,total-fromBoundary);
+        const remainingMs=Math.max(700,speechDuration*1000-Math.max(0,boundaryAt-speechStartedAt));
+        const p=clamp((now-boundaryAt)/remainingMs,0,.999);
+        idx=fromBoundary+Math.floor(p*remaining);
+      }else{
+        idx=Math.floor(clamp(elapsed/(speechDuration*1000),0,.999)*total);
+      }
+      paintChar(pi,idx);
+      fallbackFrame=requestAnimationFrame(tick);
+    };
+    fallbackFrame=requestAnimationFrame(tick);
+  }
+
+  function stopFollow(){
+    if(followFrame){
+      cancelAnimationFrame(followFrame);
+      followFrame=0;
     }
-    fallbackTimer=requestAnimationFrame(tick);
+  }
+
+  function startFollow(){
+    stopFollow();
+    const tick=()=>{
+      if(stopped||paused||!synth.speaking){
+        followFrame=0;
+        return;
+      }
+      const chars=charEls[paragraphIndex]||[];
+      const active=chars[currentChar];
+      if(active){
+        const r=active.getBoundingClientRect();
+        const vh=window.innerHeight||800;
+        const target=vh*.52;
+        const distance=r.top-target;
+        /* Phoenix 的阅读跟随是“保持阅读焦点在视口中”，这里改成连续小步跟随，
+           不再每几个字突然 scrollBy 一次。 */
+        if(Math.abs(distance)>10){
+          const step=clamp(distance*.075,-3.2,3.2);
+          window.scrollBy(0,step);
+        }
+      }
+      followFrame=requestAnimationFrame(tick);
+    };
+    followFrame=requestAnimationFrame(tick);
   }
 
   function speakNext(){
     stopFallback();
-    if(stopped||index>=originals.length){
+    stopFollow();
+
+    if(stopped||paragraphIndex>=originals.length){
       clearMarks();
       readBtn.textContent='▶ 朗读';
       return;
     }
 
-    const pi=index;
-    const text=originals[index++];
-    const duration=estimateSeconds(text);
-    const startedAt=performance.now();
-    lastScrollChar=-1;
-    clearMarks();
-    markChar(pi,0);
+    const pi=paragraphIndex++;
+    const text=originals[pi];
+    speechDuration=estimateSeconds(text);
+    speechStartedAt=performance.now();
+    boundaryAt=0;
+    boundaryChar=0;
+    currentChar=0;
+    paused=false;
+    paintChar(pi,0);
 
     const u=new SpeechSynthesisUtterance(text);
     u.lang='zh-CN';
@@ -144,72 +187,78 @@
     const voice=voices.find(v=>/^zh-CN$/i.test(v.lang))||voices.find(v=>/^zh/i.test(v.lang));
     if(voice)u.voice=voice;
 
-    let gotBoundary=false;
-
-    u.onstart=function(){
-      startFallback(pi,text,performance.now(),duration);
+    u.onstart=()=>{
+      speechStartedAt=performance.now();
+      startFallback(pi,text);
+      startFollow();
     };
 
-    u.onboundary=function(e){
-      gotBoundary=true;
+    u.onboundary=(e)=>{
       const idx=typeof e.charIndex==='number'?e.charIndex:0;
-      markChar(pi,idx);
-      /* 用真实 boundary 校准逐字计时，但不停止 fallback，避免 iPhone 上只回调少数边界时高亮停住 */
-      const syncAt=performance.now();
-      startFallback(pi,text,startedAt,duration,idx,syncAt);
+      boundaryChar=clamp(idx,0,[...text].length-1);
+      boundaryAt=performance.now();
+      paintChar(pi,boundaryChar);
+      /* 不停止 fallback。boundary 只负责校准，逐字推进和连续滚动一直运行。 */
     };
 
-    u.onend=function(){
+    u.onend=()=>{
       stopFallback();
-      speakNext();
+      stopFollow();
+      if(!stopped)speakNext();
     };
 
-    u.onerror=function(){
+    u.onerror=()=>{
       stopFallback();
+      stopFollow();
       if(!stopped)speakNext();
     };
 
     synth.speak(u);
-
-    /* 如果浏览器不提供 boundary，仍然用朗读时间估算逐字推进 */
-    setTimeout(()=>{
-      if(!gotBoundary && !stopped && synth.speaking){
-        startFallback(pi,text,startedAt,duration);
-      }
-    },350);
   }
 
-  readBtn.onclick=function(){
+  readBtn.onclick=()=>{
     synth.cancel();
     stopFallback();
+    stopFollow();
     clearMarks();
-    index=0;
+    paragraphIndex=0;
+    currentChar=0;
     stopped=false;
+    paused=false;
     readBtn.textContent='▶ 朗读中';
-    setTimeout(speakNext,100);
+    setTimeout(speakNext,80);
   };
 
-  pauseBtn.onclick=function(){
+  pauseBtn.onclick=()=>{
     if(synth.paused){
       synth.resume();
+      paused=false;
+      startFallback(paragraphIndex-1,originals[paragraphIndex-1]);
+      startFollow();
     }else if(synth.speaking){
       synth.pause();
+      paused=true;
       stopFallback();
+      stopFollow();
     }
   };
 
-  stopBtn.onclick=function(){
+  stopBtn.onclick=()=>{
     stopped=true;
-    index=0;
+    paused=false;
+    paragraphIndex=0;
     synth.cancel();
     stopFallback();
+    stopFollow();
     clearMarks();
     readBtn.textContent='▶ 朗读';
   };
 
   window.addEventListener('pagehide',()=>{
+    stopped=true;
     synth.cancel();
     stopFallback();
+    stopFollow();
   });
 })();
 </script>
