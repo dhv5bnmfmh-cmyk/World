@@ -65,6 +65,7 @@
   });
 
   let paragraphIndex=0;
+  let activeParagraph=0;
   let stopped=true;
   let paused=false;
   let fallbackFrame=0;
@@ -139,7 +140,7 @@
         followFrame=0;
         return;
       }
-      const chars=charEls[paragraphIndex]||[];
+      const chars=charEls[activeParagraph]||[];
       const active=chars[currentChar];
       if(active){
         const r=active.getBoundingClientRect();
@@ -169,6 +170,7 @@
     }
 
     const pi=paragraphIndex++;
+    activeParagraph=pi;
     const text=originals[pi];
     speechDuration=estimateSeconds(text);
     speechStartedAt=performance.now();
