@@ -13,12 +13,10 @@
 #readerBox .play{background:#d9cfb5;color:#10131a;font-weight:600}
 @media(max-width:520px){#readerBox{bottom:14px;max-width:calc(100vw - 28px);width:max-content}#readerBox button{font-size:13px;padding:8px 11px}}
 .text p{transition:color .25s ease,background .25s ease,box-shadow .25s ease,transform .25s ease}
-.text p.reading{color:#fff4cf;background:linear-gradient(90deg,#d9cfb518,transparent 88%);box-shadow:inset 3px 0 0 #d9cfb5,0 8px 28px #0004;border-radius:10px;padding:10px 12px;transform:translateX(2px)}
 </style>
 <style>
 .read-char{transition:color .08s ease,background .08s ease,text-shadow .08s ease}
 .read-char.speaking{color:#fff0a8 !important;background:rgba(217,207,181,.20);text-shadow:0 0 12px rgba(217,207,181,.35);border-radius:3px}
-.text p.reading{color:inherit;background:linear-gradient(90deg,rgba(217,207,181,.06),transparent 88%);border-radius:10px}
 </style></head>
 <body>
 <a class="back" href="./china.html?city=beijing&v=5">← 北京</a>
@@ -79,7 +77,6 @@
     if(!chars.length)return;
     const idx=clamp(charIndex,0,chars.length-1);
     chars.forEach((s,i)=>s.classList.toggle('speaking',i===idx));
-    textEls[pi].classList.add('reading');
 
     const current=chars[idx];
     const r=current.getBoundingClientRect();
@@ -107,13 +104,15 @@
     if(fallbackTimer){cancelAnimationFrame(fallbackTimer);fallbackTimer=0}
   }
 
-  function startFallback(pi,text,startedAt,duration){
+  function startFallback(pi,text,startedAt,duration,baseIndex=0,baseAt=startedAt){
     stopFallback();
     const total=[...text].length;
     function tick(now){
       if(stopped||synth.paused)return;
-      const progress=clamp((now-startedAt)/(duration*1000),0,.999);
-      const idx=Math.min(total-1,Math.floor(progress*total));
+      const remaining=Math.max(1,total-baseIndex);
+      const remainingMs=Math.max(500,duration*1000-Math.max(0,baseAt-startedAt));
+      const progress=clamp((now-baseAt)/remainingMs,0,.999);
+      const idx=Math.min(total-1,baseIndex+Math.floor(progress*remaining));
       markChar(pi,idx);
       if(progress<.999)fallbackTimer=requestAnimationFrame(tick);
     }
@@ -134,7 +133,6 @@
     const startedAt=performance.now();
     lastScrollChar=-1;
     clearMarks();
-    textEls[pi].classList.add('reading');
     markChar(pi,0);
 
     const u=new SpeechSynthesisUtterance(text);
@@ -154,9 +152,11 @@
 
     u.onboundary=function(e){
       gotBoundary=true;
-      stopFallback();
       const idx=typeof e.charIndex==='number'?e.charIndex:0;
       markChar(pi,idx);
+      /* 用真实 boundary 校准逐字计时，但不停止 fallback，避免 iPhone 上只回调少数边界时高亮停住 */
+      const syncAt=performance.now();
+      startFallback(pi,text,startedAt,duration,idx,syncAt);
     };
 
     u.onend=function(){
