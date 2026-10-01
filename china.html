@@ -22,34 +22,17 @@
 </a>
 <div class="card soon"><div class="eyebrow">COMING SOON</div><h2>更多城市</h2><p>上海、南京、西安、成都等城市内容持续加入。</p></div>
 </section>
-
 <section id="beijing" class="city-view">
 <a class="back" href="./china.html?v=5">← 中国</a>
 <div class="eyebrow">🇨🇳 中国 · 首都</div>
 <h1 class="title">北京</h1>
 <div class="cards">
-<a class="card" href="./story-0-v2.html">
-<div class="eyebrow">宫城 · 时间</div><h2>紫禁城：墙里面的时间</h2>
-</a>
-<a class="card" href="./story-1-v2.html">
-<div class="eyebrow">城市 · 前门</div><h2>前门：城门外的北京</h2>
-</a>
-<a class="card" href="./story-2-v2.html">
-<div class="eyebrow">生活 · 胡同</div><h2>胡同：一座城市的日常</h2>
-</a>
+<a class="card" href="./story-0-glow.html"><div class="eyebrow">宫城 · 时间</div><h2>紫禁城：墙里面的时间</h2></a>
+<a class="card" href="./story-1-glow.html"><div class="eyebrow">城市 · 前门</div><h2>前门：城门外的北京</h2></a>
+<a class="card" href="./story-2-glow.html"><div class="eyebrow">生活 · 胡同</div><h2>胡同：一座城市的日常</h2></a>
 </div>
 </section>
 </main>
-<script>
-(function(){
-  const params=new URLSearchParams(location.search);
-  if(params.get('city')==='beijing'){
-    const country=document.querySelector('.country-view');
-    const city=document.getElementById('beijing');
-    if(country)country.style.display='none';
-    if(city)city.style.display='block';
-  }
-})();
-</script>
+<script>(function(){const params=new URLSearchParams(location.search);if(params.get('city')==='beijing'){const country=document.querySelector('.country-view'),city=document.getElementById('beijing');if(country)country.style.display='none';if(city)city.style.display='block'}})();</script>
 </body>
 </html>
