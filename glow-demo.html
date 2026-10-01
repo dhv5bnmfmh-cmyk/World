@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05070a">
+<title>发光字体验 · 世界文化探索</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#05070a;color:#f7f3e8;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}body{overflow:hidden}.page{height:100dvh;display:flex;flex-direction:column;background:radial-gradient(circle at 50% 18%,#182538 0,#080b11 48%,#05070a 100%)}
+.top{padding:calc(16px + env(safe-area-inset-top)) 18px 10px;display:flex;align-items:center;justify-content:space-between}.back{border:1px solid #ffffff20;background:#101722dd;color:#eee;border-radius:999px;padding:9px 14px;font-size:14px}.tag{font-size:11px;letter-spacing:1.5px;color:#b8aa88}
+.hero{padding:14px 24px 6px}.hero h1{font-size:28px;line-height:1.15;margin:0 0 7px}.hero p{margin:0;color:#8f98a7;font-size:13px;line-height:1.6}
+.reading{position:relative;flex:1;overflow:hidden;margin:18px 16px 108px;border:1px solid #263040;border-radius:24px;background:linear-gradient(180deg,#0d131c,#080b10);padding:25px 20px}.reading:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 30%,#f6d98a08,transparent 42%)}
+.text{position:relative;z-index:2;font-size:24px;line-height:1.95;letter-spacing:.03em;color:#8f96a2;text-align:left}.char{display:inline-block;transition:color .08s ease,text-shadow .08s ease,filter .08s ease;white-space:pre}.char.active{color:#fffdf3;text-shadow:0 0 2px #fff,0 0 7px #fff4b8,0 0 15px #ffe88a,0 0 28px #ffc94d;filter:brightness(1.35)}
+.note{position:absolute;left:20px;right:20px;bottom:18px;text-align:center;color:#667080;font-size:11px}.controls{position:fixed;z-index:5;left:18px;right:18px;bottom:calc(12px + env(safe-area-inset-bottom));display:flex;justify-content:center;gap:9px;padding:10px;background:#121923ee;border:1px solid #ffffff18;border-radius:22px;backdrop-filter:blur(18px)}button.control{border:1px solid #394354;background:#1a222e;color:#e9e5da;border-radius:14px;padding:11px 16px;font-size:13px}.control.primary{background:#e8dfc7;color:#171717;border-color:#e8dfc7;font-weight:650}.speed{color:#b8aa88;font-size:12px;padding:11px 5px}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="top"><button class="back" onclick="location.href='./index.html?v=6'">← 返回</button><div class="tag">GLOW TEXT · 体验版</div></header>
+<section class="hero"><h1>发光字是什么感觉？</h1><p>当前朗读到哪个字，哪个字就像被灯光点亮。没有框，只让字本身发光。</p></section>
+<section class="reading" aria-label="发光字朗读体验"><div class="text" id="text"></div><div class="note" id="note">点击「体验朗读」观看逐字发光</div></section>
+<div class="controls"><button class="control primary" id="play">▶ 体验朗读</button><button class="control" id="stop">■ 停止</button><span class="speed">1.0×</span></div>
+</div>
+<script>
+const sample='清晨，故宫的红墙还没有被游客填满。站在午门外，先看到的是墙，再往上看，才是黄色的屋顶。几百年前的人来到这里，也会先面对这道门。只是他们走进去的原因，与今天完全不同。';
+const text=document.getElementById('text'),note=document.getElementById('note');
+let chars=[...sample],i=0,timer=null;
+chars.forEach((c,n)=>{const s=document.createElement('span');s.className='char';s.textContent=c;s.dataset.i=n;text.appendChild(s)});
+function stop(){clearInterval(timer);timer=null;document.querySelectorAll('.char.active').forEach(x=>x.classList.remove('active'));note.textContent='点击「体验朗读」观看逐字发光';i=0}
+function play(){stop();note.textContent='正在朗读 · 当前字发光';const els=[...document.querySelectorAll('.char')];timer=setInterval(()=>{if(i>=els.length){stop();note.textContent='朗读完成';return}els.forEach(x=>x.classList.remove('active'));const el=els[i];el.classList.add('active');el.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});i++},105)}
+document.getElementById('play').onclick=play;document.getElementById('stop').onclick=stop;
+</script>
+</body>
+</html>
