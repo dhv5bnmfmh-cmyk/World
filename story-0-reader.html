@@ -49,21 +49,44 @@ const synth=window.speechSynthesis;
 const paragraphs=[...document.querySelectorAll('.text p')].filter(p=>p.innerText.trim());
 const chars=paragraphs.map(p=>{const text=p.innerText;p.textContent='';return [...text].map(ch=>{const s=document.createElement('span');s.className='read-char';s.textContent=ch;p.appendChild(s);return s})});
 const readBtn=document.getElementById('readBtn'),restartBtn=document.getElementById('restartBtn'),voiceBtn=document.getElementById('voiceBtn');
-let state='idle',index=0,currentChar=0,voiceIndex=0,currentVoiceList=[],lastScroll=0,scrollTimer=0;
+let state='idle',index=0,currentChar=0,voiceIndex=0,currentVoiceList=[],lastScroll=0,scrollTimer=0,runId=0;
 function clear(){chars.flat().forEach(s=>s.classList.remove('speaking'))}
 function mark(pi,i){const a=chars[pi]||[];if(!a.length)return;const n=Math.max(0,Math.min(i,a.length-1));index=pi;currentChar=n;a.forEach((s,k)=>s.classList.toggle('speaking',k===n));naturalFollow(a[n])}
-function naturalFollow(el){if(!el)return;const now=performance.now();if(now-lastScroll<220)return;const r=el.getBoundingClientRect(),h=innerHeight;const upper=h*.27,lower=h*.68;if(r.top<upper||r.bottom>lower){lastScroll=now;clearTimeout(scrollTimer);scrollTimer=setTimeout(()=>{const rr=el.getBoundingClientRect();const delta=rr.top-h*.46;window.scrollBy({top:delta,behavior:'smooth'})},80)}}
+function naturalFollow(el){if(!el)return;const now=performance.now();if(now-lastScroll<220)return;const r=el.getBoundingClientRect(),h=innerHeight,upper=h*.27,lower=h*.68;if(r.top<upper||r.bottom>lower){lastScroll=now;clearTimeout(scrollTimer);scrollTimer=setTimeout(()=>{const rr=el.getBoundingClientRect();window.scrollBy({top:rr.top-h*.46,behavior:'smooth'})},80)}}
 function voices(){currentVoiceList=synth.getVoices().filter(v=>/^zh(-|_)/i.test(v.lang)||/Chinese|中文|普通话|Mandarin/i.test(v.name));return currentVoiceList}
 voices();synth.onvoiceschanged=voices;
-function setButton(){if(state==='playing'){readBtn.textContent='■';readBtn.setAttribute('aria-label','停止朗读')}else if(state==='paused'){readBtn.textContent='▶';readBtn.setAttribute('aria-label','继续朗读')}else{readBtn.textContent='▶';readBtn.setAttribute('aria-label','开始朗读')}}
-function speak(pi){if(state!=='playing')return;if(pi>=paragraphs.length){state='idle';index=0;currentChar=0;clear();setButton();return}index=pi;currentChar=0;const text=paragraphs[pi].innerText;const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=.94;u.pitch=1;const vs=voices();if(vs.length)u.voice=vs[voiceIndex%vs.length];u.onstart=()=>{if(state==='playing')mark(pi,currentChar)};u.onboundary=e=>{if(state==='playing'&&typeof e.charIndex==='number')mark(pi,e.charIndex)};u.onend=()=>{if(state==='playing')setTimeout(()=>speak(pi+1),120)};u.onerror=()=>{if(state==='playing')setTimeout(()=>speak(pi+1),180)};synth.speak(u)}
-function start(){synth.cancel();clear();index=0;currentChar=0;state='playing';setButton();speak(0)}
-function pause(){if(state!=='playing')return;state='paused';synth.pause();setButton()}
-function resume(){if(state!=='paused')return;state='playing';synth.resume();setButton()}
-readBtn.onclick=()=>{if(state==='playing')pause();else if(state==='paused')resume();else start()};
-restartBtn.onclick=start;
-voiceBtn.onclick=()=>{const vs=voices();if(vs.length>1){voiceIndex=(voiceIndex+1)%vs.length;voiceBtn.title='当前声音：'+vs[voiceIndex].name;if(state==='playing'||state==='paused'){synth.cancel();const p=index;state='playing';setButton();speak(p)}}};
-window.addEventListener('pagehide',()=>synth.cancel());
+function setButton(){if(state==='playing'){readBtn.textContent='■';readBtn.setAttribute('aria-label','停止朗读')}else{readBtn.textContent='▶';readBtn.setAttribute('aria-label',state==='paused'?'继续朗读':'开始朗读')}}
+function speak(pi,offset){
+ if(state!=='playing')return;
+ if(pi>=paragraphs.length){state='idle';index=0;currentChar=0;clear();setButton();return}
+ index=pi;currentChar=Math.max(0,offset||0);
+ const fullText=paragraphs[pi].innerText;
+ const text=fullText.slice(currentChar);
+ if(!text){setTimeout(()=>speak(pi+1,0),100);return}
+ const myRun=runId;
+ const u=new SpeechSynthesisUtterance(text);
+ u.lang='zh-CN';u.rate=.94;u.pitch=1;
+ const vs=voices();if(vs.length)u.voice=vs[voiceIndex%vs.length];
+ u.onstart=()=>{if(state==='playing'&&myRun===runId)mark(pi,currentChar)};
+ u.onboundary=e=>{if(state==='playing'&&myRun===runId&&typeof e.charIndex==='number')mark(pi,currentChar+e.charIndex)};
+ u.onend=()=>{if(state==='playing'&&myRun===runId)setTimeout(()=>speak(pi+1,0),120)};
+ u.onerror=()=>{if(state==='playing'&&myRun===runId)setTimeout(()=>speak(pi,Math.max(currentChar,0)),150)};
+ synth.speak(u);
+}
+function startFromCurrent(){if(state==='playing')return;state='playing';runId++;setButton();synth.cancel();setTimeout(()=>speak(index,currentChar),40)}
+function stopReading(){if(state!=='playing')return;state='paused';runId++;synth.cancel();setButton();mark(index,currentChar)}
+readBtn.addEventListener('click',()=>{if(state==='playing')stopReading();else startFromCurrent()});
+restartBtn.addEventListener('click',()=>{runId++;synth.cancel();state='playing';index=0;currentChar=0;clear();setButton();window.scrollTo({top:0,behavior:'smooth'});setTimeout(()=>speak(0,0),80)});
+voiceBtn.addEventListener('click',()=>{
+ const vs=voices();
+ if(!vs.length){voiceBtn.textContent='🔊';voiceBtn.setAttribute('aria-label','没有可用声音');return}
+ voiceIndex=(voiceIndex+1)%vs.length;
+ const v=vs[voiceIndex];
+ voiceBtn.textContent='🔊';
+ voiceBtn.setAttribute('aria-label','下一声音：'+v.name);
+ voiceBtn.title='下一声音：'+v.name;
+});
+setButton();
 })();
 </script>
 </body>
