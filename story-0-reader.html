@@ -12,7 +12,7 @@
 </style>
 </head>
 <body>
-<a class="back" href="./china.html?city=beijing&v=6">← 北京</a>
+<a class="back" href="./china.html?city=beijing&v=7">← 北京</a>
 <main class="wrap">
 <header><div class="eyebrow">北京 · 宫城</div><h1 class="title">紫禁城：墙里面的时间</h1><div class="source">故宫博物院 · 明清北京</div></header>
 <section class="scene"><img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/故宫博物院红墙_-_panoramio.jpg" alt="紫禁城红墙"><div class="text">
@@ -40,25 +40,29 @@
 <p>太和殿尤其能说明这种时间感。它位于紫禁城南北主轴线的重要位置，最初称奉天殿，后来几次更名和重建。故宫博物院资料显示，今天看到的太和殿形制，是清康熙三十四年，也就是1695年重建后形成的。于是眼前这座建筑既属于一个具体的年代，也承接着更早的宫城记忆。</p>
 </div></section>
 <div class="sources"><div>资料来源</div><a href="https://www.dpm.org.cn/subject_600/buildingdetails/253789.html" target="_blank" rel="noopener">故宫博物院 · 紫禁城建成</a><a href="https://www.dpm.org.cn/show/225724.html" target="_blank" rel="noopener">故宫博物院 · 太和殿</a></div>
-<div class="end">故事结束<br><a class="home" href="./china.html?city=beijing&v=6">返回北京</a></div>
+<div class="end">故事结束<br><a class="home" href="./china.html?city=beijing&v=7">返回北京</a></div>
 </main>
-<div id="readerBox" aria-label="故事朗读"><button id="restartBtn" aria-label="重读">↺</button><button id="readBtn" aria-label="开始朗读">▶</button><button id="voiceBtn" aria-label="切换声音">◉</button></div>
+<div id="readerBox" aria-label="故事朗读"><button id="restartBtn" aria-label="重读">↺</button><button id="readBtn" aria-label="开始朗读">▶</button><button id="voiceBtn" aria-label="切换声音">🔊</button></div>
 <script>
 (function(){
 const synth=window.speechSynthesis;
 const paragraphs=[...document.querySelectorAll('.text p')].filter(p=>p.innerText.trim());
 const chars=paragraphs.map(p=>{const text=p.innerText;p.textContent='';return [...text].map(ch=>{const s=document.createElement('span');s.className='read-char';s.textContent=ch;p.appendChild(s);return s})});
 const readBtn=document.getElementById('readBtn'),restartBtn=document.getElementById('restartBtn'),voiceBtn=document.getElementById('voiceBtn');
-let running=false,index=0,voiceIndex=0,currentVoiceList=[],lastScroll=0,scrollTimer=0;
+let state='idle',index=0,currentChar=0,voiceIndex=0,currentVoiceList=[],lastScroll=0,scrollTimer=0;
 function clear(){chars.flat().forEach(s=>s.classList.remove('speaking'))}
-function mark(pi,i){const a=chars[pi]||[];if(!a.length)return;const n=Math.max(0,Math.min(i,a.length-1));a.forEach((s,k)=>s.classList.toggle('speaking',k===n));naturalFollow(a[n])}
+function mark(pi,i){const a=chars[pi]||[];if(!a.length)return;const n=Math.max(0,Math.min(i,a.length-1));index=pi;currentChar=n;a.forEach((s,k)=>s.classList.toggle('speaking',k===n));naturalFollow(a[n])}
 function naturalFollow(el){if(!el)return;const now=performance.now();if(now-lastScroll<220)return;const r=el.getBoundingClientRect(),h=innerHeight;const upper=h*.27,lower=h*.68;if(r.top<upper||r.bottom>lower){lastScroll=now;clearTimeout(scrollTimer);scrollTimer=setTimeout(()=>{const rr=el.getBoundingClientRect();const delta=rr.top-h*.46;window.scrollBy({top:delta,behavior:'smooth'})},80)}}
 function voices(){currentVoiceList=synth.getVoices().filter(v=>/^zh(-|_)/i.test(v.lang)||/Chinese|中文|普通话|Mandarin/i.test(v.name));return currentVoiceList}
 voices();synth.onvoiceschanged=voices;
-function speak(pi){if(!running)return;if(pi>=paragraphs.length){running=false;index=0;readBtn.textContent='▶';clear();return}index=pi;const text=paragraphs[pi].innerText;const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=.94;u.pitch=1;const vs=voices();if(vs.length)u.voice=vs[voiceIndex%vs.length];u.onstart=()=>mark(pi,0);u.onboundary=e=>{if(typeof e.charIndex==='number'){mark(pi,e.charIndex)}};u.onend=()=>{if(running)setTimeout(()=>speak(pi+1),120)};u.onerror=()=>{if(running)setTimeout(()=>speak(pi+1),180)};synth.speak(u)}
-function start(){synth.cancel();clear();running=true;index=0;readBtn.textContent='■';speak(0)}
-function stop(){running=false;synth.cancel();clear();readBtn.textContent='▶'}
-readBtn.onclick=()=>running?stop():start();restartBtn.onclick=start;voiceBtn.onclick=()=>{const vs=voices();if(vs.length>1){voiceIndex=(voiceIndex+1)%vs.length;if(running){const keep=index;start();setTimeout(()=>{if(keep>0){synth.cancel();clear();speak(keep)}},80)}}};
+function setButton(){if(state==='playing'){readBtn.textContent='■';readBtn.setAttribute('aria-label','停止朗读')}else if(state==='paused'){readBtn.textContent='▶';readBtn.setAttribute('aria-label','继续朗读')}else{readBtn.textContent='▶';readBtn.setAttribute('aria-label','开始朗读')}}
+function speak(pi){if(state!=='playing')return;if(pi>=paragraphs.length){state='idle';index=0;currentChar=0;clear();setButton();return}index=pi;currentChar=0;const text=paragraphs[pi].innerText;const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=.94;u.pitch=1;const vs=voices();if(vs.length)u.voice=vs[voiceIndex%vs.length];u.onstart=()=>{if(state==='playing')mark(pi,currentChar)};u.onboundary=e=>{if(state==='playing'&&typeof e.charIndex==='number')mark(pi,e.charIndex)};u.onend=()=>{if(state==='playing')setTimeout(()=>speak(pi+1),120)};u.onerror=()=>{if(state==='playing')setTimeout(()=>speak(pi+1),180)};synth.speak(u)}
+function start(){synth.cancel();clear();index=0;currentChar=0;state='playing';setButton();speak(0)}
+function pause(){if(state!=='playing')return;state='paused';synth.pause();setButton()}
+function resume(){if(state!=='paused')return;state='playing';synth.resume();setButton()}
+readBtn.onclick=()=>{if(state==='playing')pause();else if(state==='paused')resume();else start()};
+restartBtn.onclick=start;
+voiceBtn.onclick=()=>{const vs=voices();if(vs.length>1){voiceIndex=(voiceIndex+1)%vs.length;voiceBtn.title='当前声音：'+vs[voiceIndex].name;if(state==='playing'||state==='paused'){synth.cancel();const p=index;state='playing';setButton();speak(p)}}};
 window.addEventListener('pagehide',()=>synth.cancel());
 })();
 </script>
