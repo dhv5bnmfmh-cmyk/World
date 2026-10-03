@@ -6,9 +6,7 @@
 <meta name="theme-color" content="#080b10">
 <title>紫禁城：墙里面的时间 · 朗读</title>
 <style>
-*{box-sizing:border-box}html{scroll-behavior:auto}body{margin:0;background:#080b10;color:#f4f1e8;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}.wrap{max-width:900px;margin:auto}.back{position:fixed;top:14px;left:14px;z-index:30;color:#fff;text-decoration:none;background:#0d1016dd;border:1px solid #ffffff22;border-radius:999px;padding:9px 14px;backdrop-filter:blur(12px)}header{padding:76px 20px 30px}.eyebrow{font-size:11px;color:#b8aa88;letter-spacing:1.7px}.title{font-size:clamp(32px,8vw,56px);line-height:1.15;margin:10px 0}.source{color:#9da5b1;font-size:13px}.scene{margin:0 0 34px;background:#10151d;border-radius:22px;overflow:hidden;border:1px solid #252d39}.scene img{display:block;width:100%;max-height:68vh;object-fit:contain;background:#05070a}.text{padding:22px 20px 28px;font-size:18px;line-height:1.9}.text p{margin:0 0 24px}.text p:last-child{margin-bottom:0}.credit{font-size:10px;color:#89919e;padding:0 20px 16px}.read-char{display:inline;color:#f4f1e8;transition:color .06s ease,text-shadow .06s ease,filter .06s ease}.read-char.speaking{color:#fffef2!important;text-shadow:0 0 2px #fff,0 0 8px #fff2a6,0 0 18px #ffe26a,0 0 30px #ffc62e!important;filter:brightness(1.45);font-weight:500}.sources{margin:0 20px 34px;padding:14px 0;border-top:1px solid #252d39;color:#89919e;font-size:11px;line-height:1.7}.sources div{color:#b8aa88;margin-bottom:5px}.sources a{display:block;color:#9da5b1;text-decoration:none;margin:2px 0}.end{padding:20px 20px 100px;text-align:center;color:#9da5b1}.home{display:inline-block;margin-top:15px;color:#d9cfb5;text-decoration:none;border:1px solid #4a4b4d;border-radius:999px;padding:10px 16px}
-#readerBox{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:100;display:flex;align-items:center;gap:7px;padding:8px;background:#111722ee;border:1px solid #ffffff20;border-radius:999px;box-shadow:0 8px 30px #0009;backdrop-filter:blur(16px)}#readerBox button{width:48px;height:44px;border:0;border-radius:999px;background:#202938;color:#f4f1e8;font-size:20px;display:grid;place-items:center}#readerBox #readBtn{width:56px;background:#d9cfb5;color:#10131a;font-size:22px;font-weight:700}#readerBox button:active{transform:scale(.95)}
-@media(max-width:520px){header{padding-top:70px}.text{font-size:18px;line-height:1.9}.scene{border-radius:18px;margin-bottom:26px}#readerBox{bottom:14px}.back{top:12px;left:12px}}
+*{box-sizing:border-box}html{scroll-behavior:auto}body{margin:0;background:#080b10;color:#f4f1e8;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}.wrap{max-width:900px;margin:auto}.back{position:fixed;top:14px;left:14px;z-index:30;color:#fff;text-decoration:none;background:#0d1016dd;border:1px solid #ffffff22;border-radius:999px;padding:9px 14px;backdrop-filter:blur(12px)}header{padding:76px 20px 30px}.eyebrow{font-size:11px;color:#b8aa88;letter-spacing:1.7px}.title{font-size:clamp(32px,8vw,56px);line-height:1.15;margin:10px 0}.source{color:#9da5b1;font-size:13px}.scene{margin:0 0 34px;background:#10151d;border-radius:22px;overflow:hidden;border:1px solid #252d39}.scene img{display:block;width:100%;max-height:68vh;object-fit:contain;background:#05070a}.text{padding:22px 20px 28px;font-size:18px;line-height:1.9}.text p{margin:0 0 24px}.text p:last-child{margin-bottom:0}.credit{font-size:10px;color:#89919e;padding:0 20px 16px}.read-char{display:inline;color:#f4f1e8}.read-char.speaking{color:#fffef2!important;text-shadow:0 0 2px #fff,0 0 8px #fff2a6,0 0 18px #ffe26a,0 0 30px #ffc62e!important;filter:brightness(1.45);font-weight:500}.sources{margin:0 20px 34px;padding:14px 0;border-top:1px solid #252d39;color:#89919e;font-size:11px;line-height:1.7}.sources div{color:#b8aa88;margin-bottom:5px}.sources a{display:block;color:#9da5b1;text-decoration:none;margin:2px 0}.end{padding:20px 20px 100px;text-align:center;color:#9da5b1}.home{display:inline-block;margin-top:15px;color:#d9cfb5;text-decoration:none;border:1px solid #4a4b4d;border-radius:999px;padding:10px 16px}#readerBox{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:100;display:flex;align-items:center;gap:7px;padding:8px;background:#111722ee;border:1px solid #ffffff20;border-radius:999px;box-shadow:0 8px 30px #0009;backdrop-filter:blur(16px)}#readerBox button{width:48px;height:44px;border:0;border-radius:999px;background:#202938;color:#f4f1e8;font-size:20px;display:grid;place-items:center}#readerBox #readBtn{width:56px;background:#d9cfb5;color:#10131a;font-size:22px;font-weight:700}#readerBox button:active{transform:scale(.95)}@media(max-width:520px){header{padding-top:70px}.text{font-size:18px;line-height:1.9}.scene{border-radius:18px;margin-bottom:26px}#readerBox{bottom:14px}.back{top:12px;left:12px}}
 </style>
 </head>
 <body>
@@ -30,43 +28,49 @@ const synth=window.speechSynthesis;
 const paragraphs=[...document.querySelectorAll('.text p')].filter(p=>p.innerText.trim());
 const chars=paragraphs.map(p=>{const text=p.innerText;p.textContent='';return [...text].map(ch=>{const s=document.createElement('span');s.className='read-char';s.textContent=ch;p.appendChild(s);return s})});
 const readBtn=document.getElementById('readBtn'),restartBtn=document.getElementById('restartBtn'),voiceBtn=document.getElementById('voiceBtn');
-let state='idle',index=0,currentChar=0,voiceIndex=0,voiceList=[],lastScroll=0,scrollTimer=0,runId=0,lastBoundary=-1,lastBoundaryTime=0,segmentStarted=0,adaptiveCps=4.35,raf=0;
+let state='idle',index=0,currentChar=0,voiceIndex=0,voiceList=[],lastScroll=0,scrollTimer=0,runId=0,utteranceBase=0,lastBoundaryAt=0,lastBoundaryIndex=0,interpTimer=0;
 function clear(){chars.flat().forEach(s=>s.classList.remove('speaking'))}
 function mark(pi,i){const a=chars[pi]||[];if(!a.length)return;const n=Math.max(0,Math.min(i,a.length-1));index=pi;currentChar=n;a.forEach((s,k)=>s.classList.toggle('speaking',k===n));naturalFollow(a[n])}
-function naturalFollow(el){if(!el)return;const now=performance.now();if(now-lastScroll<220)return;const r=el.getBoundingClientRect(),h=innerHeight,upper=h*.27,lower=h*.68;if(r.top<upper||r.bottom>lower){lastScroll=now;clearTimeout(scrollTimer);scrollTimer=setTimeout(()=>{const rr=el.getBoundingClientRect();window.scrollBy({top:rr.top-h*.46,behavior:'smooth'})},70)}}
+function naturalFollow(el){if(!el)return;const now=performance.now();if(now-lastScroll<260)return;const r=el.getBoundingClientRect(),h=innerHeight,upper=h*.28,lower=h*.70;if(r.top<upper||r.bottom>lower){lastScroll=now;clearTimeout(scrollTimer);scrollTimer=setTimeout(()=>{const rr=el.getBoundingClientRect();window.scrollBy({top:rr.top-h*.47,behavior:'smooth'})},80)}}
 function refreshVoices(){const all=synth.getVoices();voiceList=all.filter(v=>/^zh(-|_|$)/i.test(v.lang)||/Chinese|中文|普通话|Mandarin/i.test(v.name));if(!voiceList.length)voiceList=all.slice();if(voiceIndex>=voiceList.length)voiceIndex=0;return voiceList}
 refreshVoices();synth.onvoiceschanged=refreshVoices;
 function setButton(){if(state==='playing'){readBtn.textContent='■';readBtn.setAttribute('aria-label','停止朗读')}else{readBtn.textContent='▶';readBtn.setAttribute('aria-label',state==='paused'?'继续朗读':'开始朗读')}}
 function currentVoice(){const vs=refreshVoices();return vs.length?vs[voiceIndex%vs.length]:null}
+function stopInterpolation(){if(interpTimer){clearTimeout(interpTimer);interpTimer=0}}
+function interpolateUntilNext(pi,base,from,to,duration,myRun){stopInterpolation();if(to<=from||duration<=80)return;const start=performance.now();function step(){if(state!=='playing'||myRun!==runId)return;const t=Math.min(1,(performance.now()-start)/duration);const idx=Math.min(to-1,from+Math.floor((to-from)*t));mark(pi,idx);if(t<1)interpTimer=setTimeout(step,35)}interpTimer=setTimeout(step,25)}
 function speak(pi,offset){
  if(state!=='playing')return;
- if(pi>=paragraphs.length){state='idle';index=0;currentChar=0;clear();setButton();cancelAnimationFrame(raf);return}
- index=pi;currentChar=Math.max(0,Math.min(offset||0,(chars[pi]||[]).length-1));lastBoundary=-1;lastBoundaryTime=performance.now();segmentStarted=performance.now();
+ if(pi>=paragraphs.length){state='idle';index=0;currentChar=0;clear();setButton();stopInterpolation();return}
+ index=pi;utteranceBase=Math.max(0,Math.min(offset||0,(chars[pi]||[]).length));currentChar=utteranceBase;lastBoundaryIndex=utteranceBase;lastBoundaryAt=performance.now();
  const fullText=paragraphs[pi].innerText;
- const text=fullText.slice(currentChar);
+ const text=fullText.slice(utteranceBase);
  if(!text){setTimeout(()=>speak(pi+1,0),80);return}
  const myRun=++runId;
  const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=.94;u.pitch=1;u.volume=1;
  const v=currentVoice();if(v)u.voice=v;
- u.onstart=()=>{if(state==='playing'&&myRun===runId){segmentStarted=performance.now();mark(pi,currentChar);tick()}};
- u.onboundary=e=>{if(state==='playing'&&myRun===runId&&typeof e.charIndex==='number'){const idx=currentChar+e.charIndex;if(idx>=0&&idx<(chars[pi]||[]).length){currentChar=idx;lastBoundary=idx;lastBoundaryTime=performance.now();mark(pi,idx)}}};
- u.onend=()=>{if(state==='playing'&&myRun===runId){const elapsed=(performance.now()-segmentStarted)/1000;adaptiveCps=adaptiveCps*.65+(text.length/Math.max(.4,elapsed))*.35;setTimeout(()=>speak(pi+1,0),90)}};
- u.onerror=()=>{if(state==='playing'&&myRun===runId)setTimeout(()=>speak(pi,currentChar),120)};
+ u.onstart=()=>{if(state==='playing'&&myRun===runId){mark(pi,utteranceBase);lastBoundaryAt=performance.now();lastBoundaryIndex=utteranceBase}};
+ u.onboundary=e=>{
+   if(state!=='playing'||myRun!==runId||typeof e.charIndex!=='number')return;
+   const next=Math.max(utteranceBase,Math.min((chars[pi]||[]).length-1,utteranceBase+e.charIndex));
+   const now=performance.now();
+   const previous=lastBoundaryIndex;
+   const elapsed=now-lastBoundaryAt;
+   lastBoundaryAt=now;lastBoundaryIndex=next;currentChar=next;
+   mark(pi,next);
+   if(next>previous&&elapsed>40)interpolateUntilNext(pi,utteranceBase,previous,next,elapsed,myRun);
+ };
+ u.onend=()=>{if(state==='playing'&&myRun===runId){stopInterpolation();mark(pi,Math.min((chars[pi]||[]).length-1,utteranceBase+text.length-1));setTimeout(()=>speak(pi+1,0),90)}};
+ u.onerror=()=>{if(state==='playing'&&myRun===runId){stopInterpolation();setTimeout(()=>speak(pi,currentChar),120)}};
  synth.speak(u);
 }
-function tick(){cancelAnimationFrame(raf);if(state!=='playing')return;const a=chars[index]||[];if(synth.speaking&&!synth.paused&&a.length){const elapsed=(performance.now()-segmentStarted)/1000;let local;if(lastBoundary>=0){local=lastBoundary+Math.floor((performance.now()-lastBoundaryTime)/1000*adaptiveCps*.94)}else{local=Math.floor(elapsed*adaptiveCps*.94)}local=Math.max(0,Math.min(a.length-1,local));if(local!==currentChar)mark(index,local)}raf=requestAnimationFrame(tick)}
-function start(){if(!('speechSynthesis'in window))return;state='playing';index=0;currentChar=0;adaptiveCps=4.35;clear();window.scrollTo({top:0,behavior:'smooth'});setButton();synth.cancel();setTimeout(()=>speak(0,0),50)}
-function pause(){if(state!=='playing')return;state='paused';cancelAnimationFrame(raf);synth.pause();mark(index,currentChar);setButton()}
-function resume(){if(state!=='paused')return;state='playing';setButton();synth.resume();tick()}
-readBtn.addEventListener('click',()=>{if(state==='playing')pause();else if(state==='paused')resume();else start()});
-restartBtn.addEventListener('click',()=>{state='playing';runId++;cancelAnimationFrame(raf);synth.cancel();index=0;currentChar=0;adaptiveCps=4.35;clear();window.scrollTo({top:0,behavior:'smooth'});setButton();setTimeout(()=>speak(0,0),70)});
-voiceBtn.addEventListener('click',()=>{
- const vs=refreshVoices();if(!vs.length)return;
- voiceIndex=(voiceIndex+1)%vs.length;const v=vs[voiceIndex];voiceBtn.title='切换声音：'+v.name;voiceBtn.setAttribute('aria-label','切换声音：'+v.name);
- if(state==='playing'){
-   const pi=index,offset=currentChar;runId++;synth.cancel();setTimeout(()=>{if(state==='playing')speak(pi,offset)},35);
- }
+readBtn.addEventListener('click',()=>{
+ if(state==='idle'){state='playing';setButton();synth.cancel();runId++;speak(index,currentChar);return}
+ if(state==='playing'){state='paused';runId++;stopInterpolation();synth.cancel();setButton();return}
+ if(state==='paused'){state='playing';setButton();speak(index,currentChar);return}
 });
+restartBtn.addEventListener('click',()=>{state='playing';runId++;stopInterpolation();synth.cancel();index=0;currentChar=0;clear();setButton();setTimeout(()=>speak(0,0),60)});
+voiceBtn.addEventListener('click',()=>{const vs=refreshVoices();if(vs.length<2)return;voiceIndex=(voiceIndex+1)%vs.length;if(state==='playing'){const pi=index,pos=currentChar;runId++;stopInterpolation();synth.cancel();setTimeout(()=>{if(state==='playing')speak(pi,pos)},60)}});
+window.addEventListener('pagehide',()=>{runId++;stopInterpolation();synth.cancel()});
 setButton();
 })();
 </script>
