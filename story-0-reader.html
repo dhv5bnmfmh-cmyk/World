@@ -47,19 +47,18 @@ function speak(pi,offset){
  const fullText=paragraphs[pi].innerText;let start=Math.max(0,Math.min(offset||0,fullText.length));while(start<fullText.length&&/\s/.test(fullText[start]))start++;
  if(start>=fullText.length){setTimeout(()=>speak(pi+1,0),80);return}
  const text=fullText.slice(start),myRun=runId,u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=.94;u.pitch=1;const vs=refreshVoices();if(vs.length)u.voice=vs[voiceIndex%vs.length];
- currentUtterance=u;highlightNow(pi,start);
- u.onstart=()=>{if(state==='playing'&&myRun===runId){highlightNow(pi,currentChar);startProgress(myRun,pi,start,text)}};
+ currentUtterance=u;mark(pi,start);
+ u.onstart=()=>{if(state==='playing'&&myRun===runId){mark(pi,currentChar);startProgress(myRun,pi,start,text)}};
  u.onboundary=e=>{if(state!=='playing'||myRun!==runId||typeof e.charIndex!=='number')return;const absolute=start+e.charIndex;if(absolute>=start&&absolute<fullText.length){chunkStartChar=absolute;chunkStartedAt=performance.now();mark(pi,absolute)}};
  u.onend=()=>{if(myRun!==runId)return;stopProgress();currentUtterance=null;if(state==='playing')setTimeout(()=>speak(pi+1,0),80)};
  u.onerror=()=>{if(myRun!==runId)return;stopProgress();currentUtterance=null};
  synth.speak(u);
 }
-function highlightNow(pi,i){const a=chars[pi]||[];if(!a.length)return;const n=Math.max(0,Math.min(i,a.length-1));index=pi;currentChar=n;a.forEach((s,k)=>s.classList.toggle('speaking',k===n));naturalFollow(a[n])}
 function startFromCurrent(){if(state==='playing')return;if(state==='paused'){state='playing';setButton();synth.resume();return}state='playing';runId++;setButton();synth.cancel();setTimeout(()=>speak(index,currentChar),35)}
 function stopReading(){if(state!=='playing')return;state='paused';stopProgress();synth.pause();setButton()}
 readBtn.addEventListener('click',()=>{if(state==='playing')stopReading();else startFromCurrent()});
 restartBtn.addEventListener('click',()=>{runId++;stopProgress();synth.cancel();state='playing';index=0;currentChar=0;currentUtterance=null;clear();setButton();window.scrollTo({top:0,behavior:'smooth'});setTimeout(()=>speak(0,0),80)});
-voiceBtn.addEventListener('click',()=>{const vs=refreshVoices();if(!vs.length)return;voiceIndex=(voiceIndex+1)%vs.length;const v=vs[voiceIndex];voiceBtn.setAttribute('aria-label','当前声音：'+v.name);voiceBtn.title='当前声音：'+v.name';if(state==='playing'){const resumePi=index,resumeChar=currentChar;runId++;stopProgress();synth.cancel();currentUtterance=null;setTimeout(()=>speak(resumePi,resumeChar),45)}});
+voiceBtn.addEventListener('click',()=>{const vs=refreshVoices();if(!vs.length)return;voiceIndex=(voiceIndex+1)%vs.length;const v=vs[voiceIndex];voiceBtn.setAttribute('aria-label','当前声音：'+v.name);voiceBtn.title='当前声音：'+v.name;if(state==='playing'){const resumePi=index,resumeChar=currentChar;runId++;stopProgress();synth.cancel();currentUtterance=null;setTimeout(()=>speak(resumePi,resumeChar),45)}});
 setButton();
 })();
 </script>
