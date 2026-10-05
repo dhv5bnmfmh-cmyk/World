@@ -28,7 +28,7 @@ const synth=window.speechSynthesis;
 const paragraphs=[...document.querySelectorAll('.text p')].filter(p=>p.innerText.trim());
 const chars=paragraphs.map(p=>{const text=p.innerText;p.textContent='';return [...text].map(ch=>{const s=document.createElement('span');s.className='read-char';s.textContent=ch;p.appendChild(s);return s})});
 const readBtn=document.getElementById('readBtn'),restartBtn=document.getElementById('restartBtn'),voiceBtn=document.getElementById('voiceBtn');
-let state='idle',index=0,currentChar=0,voiceIndex=0,voiceList=[],lastScroll=0,scrollTimer=0,runId=0,utteranceBase=0,lastBoundaryAt=0,lastBoundaryIndex=0,interpTimer=0;
+let state='idle',index=0,currentChar=0,voiceIndex=0,voiceList=[],lastScroll=0,scrollTimer=0,runId=0,utteranceBase=0,lastBoundaryIndex=0;
 function clear(){chars.flat().forEach(s=>s.classList.remove('speaking'))}
 function mark(pi,i){const a=chars[pi]||[];if(!a.length)return;const n=Math.max(0,Math.min(i,a.length-1));index=pi;currentChar=n;a.forEach((s,k)=>s.classList.toggle('speaking',k===n));naturalFollow(a[n])}
 function naturalFollow(el){if(!el)return;const now=performance.now();if(now-lastScroll<260)return;const r=el.getBoundingClientRect(),h=innerHeight,upper=h*.28,lower=h*.70;if(r.top<upper||r.bottom>lower){lastScroll=now;clearTimeout(scrollTimer);scrollTimer=setTimeout(()=>{const rr=el.getBoundingClientRect();window.scrollBy({top:rr.top-h*.47,behavior:'smooth'})},80)}}
@@ -36,41 +36,40 @@ function refreshVoices(){const all=synth.getVoices();voiceList=all.filter(v=>/^z
 refreshVoices();synth.onvoiceschanged=refreshVoices;
 function setButton(){if(state==='playing'){readBtn.textContent='■';readBtn.setAttribute('aria-label','停止朗读')}else{readBtn.textContent='▶';readBtn.setAttribute('aria-label',state==='paused'?'继续朗读':'开始朗读')}}
 function currentVoice(){const vs=refreshVoices();return vs.length?vs[voiceIndex%vs.length]:null}
-function stopInterpolation(){if(interpTimer){clearTimeout(interpTimer);interpTimer=0}}
-function interpolateUntilNext(pi,base,from,to,duration,myRun){stopInterpolation();if(to<=from||duration<=80)return;const start=performance.now();function step(){if(state!=='playing'||myRun!==runId)return;const t=Math.min(1,(performance.now()-start)/duration);const idx=Math.min(to-1,from+Math.floor((to-from)*t));mark(pi,idx);if(t<1)interpTimer=setTimeout(step,35)}interpTimer=setTimeout(step,25)}
 function speak(pi,offset){
  if(state!=='playing')return;
- if(pi>=paragraphs.length){state='idle';index=0;currentChar=0;clear();setButton();stopInterpolation();return}
- index=pi;utteranceBase=Math.max(0,Math.min(offset||0,(chars[pi]||[]).length));currentChar=utteranceBase;lastBoundaryIndex=utteranceBase;lastBoundaryAt=performance.now();
+ if(pi>=paragraphs.length){state='idle';index=0;currentChar=0;clear();setButton();return}
+ index=pi;
+ utteranceBase=Math.max(0,Math.min(offset||0,(chars[pi]||[]).length));
+ currentChar=utteranceBase;
+ lastBoundaryIndex=utteranceBase;
  const fullText=paragraphs[pi].innerText;
  const text=fullText.slice(utteranceBase);
  if(!text){setTimeout(()=>speak(pi+1,0),80);return}
  const myRun=++runId;
  const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=.94;u.pitch=1;u.volume=1;
  const v=currentVoice();if(v)u.voice=v;
- u.onstart=()=>{if(state==='playing'&&myRun===runId){mark(pi,utteranceBase);lastBoundaryAt=performance.now();lastBoundaryIndex=utteranceBase}};
+ u.onstart=()=>{if(state==='playing'&&myRun===runId){mark(pi,utteranceBase);lastBoundaryIndex=utteranceBase}};
  u.onboundary=e=>{
    if(state!=='playing'||myRun!==runId||typeof e.charIndex!=='number')return;
-   const next=Math.max(utteranceBase,Math.min((chars[pi]||[]).length-1,utteranceBase+e.charIndex));
-   const now=performance.now();
-   const previous=lastBoundaryIndex;
-   const elapsed=now-lastBoundaryAt;
-   lastBoundaryAt=now;lastBoundaryIndex=next;currentChar=next;
-   mark(pi,next);
-   if(next>previous&&elapsed>40)interpolateUntilNext(pi,utteranceBase,previous,next,elapsed,myRun);
+   const max=(chars[pi]||[]).length-1;
+   const actual=Math.max(utteranceBase,Math.min(max,utteranceBase+e.charIndex));
+   if(actual<currentChar)return;
+   lastBoundaryIndex=actual;
+   mark(pi,actual);
  };
- u.onend=()=>{if(state==='playing'&&myRun===runId){stopInterpolation();mark(pi,Math.min((chars[pi]||[]).length-1,utteranceBase+text.length-1));setTimeout(()=>speak(pi+1,0),90)}};
- u.onerror=()=>{if(state==='playing'&&myRun===runId){stopInterpolation();setTimeout(()=>speak(pi,currentChar),120)}};
+ u.onend=()=>{if(state==='playing'&&myRun===runId){mark(pi,Math.min((chars[pi]||[]).length-1,utteranceBase+text.length-1));setTimeout(()=>speak(pi+1,0),90)}};
+ u.onerror=()=>{if(state==='playing'&&myRun===runId){setTimeout(()=>speak(pi,currentChar),120)}};
  synth.speak(u);
 }
 readBtn.addEventListener('click',()=>{
  if(state==='idle'){state='playing';setButton();synth.cancel();runId++;speak(index,currentChar);return}
- if(state==='playing'){state='paused';runId++;stopInterpolation();synth.cancel();setButton();return}
+ if(state==='playing'){state='paused';runId++;synth.cancel();setButton();return}
  if(state==='paused'){state='playing';setButton();speak(index,currentChar);return}
 });
-restartBtn.addEventListener('click',()=>{state='playing';runId++;stopInterpolation();synth.cancel();index=0;currentChar=0;clear();setButton();setTimeout(()=>speak(0,0),60)});
-voiceBtn.addEventListener('click',()=>{const vs=refreshVoices();if(vs.length<2)return;voiceIndex=(voiceIndex+1)%vs.length;if(state==='playing'){const pi=index,pos=currentChar;runId++;stopInterpolation();synth.cancel();setTimeout(()=>{if(state==='playing')speak(pi,pos)},60)}});
-window.addEventListener('pagehide',()=>{runId++;stopInterpolation();synth.cancel()});
+restartBtn.addEventListener('click',()=>{state='playing';runId++;synth.cancel();index=0;currentChar=0;clear();setButton();setTimeout(()=>speak(0,0),60)});
+voiceBtn.addEventListener('click',()=>{const vs=refreshVoices();if(vs.length<2)return;voiceIndex=(voiceIndex+1)%vs.length;if(state==='playing'){const pi=index,pos=currentChar;runId++;synth.cancel();setTimeout(()=>{if(state==='playing')speak(pi,pos)},60)}});
+window.addEventListener('pagehide',()=>{runId++;synth.cancel()});
 setButton();
 })();
 </script>
