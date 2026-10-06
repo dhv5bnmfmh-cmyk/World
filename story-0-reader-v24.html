@@ -6,52 +6,46 @@
 <meta name="theme-color" content="#080b10">
 <title>紫禁城：墙里面的时间 · 朗读</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080b10}#page{position:fixed;inset:0;border:0;width:100%;height:100%;background:#080b10}#readerBox{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:100;display:flex;align-items:center;gap:7px;padding:8px;background:#111722ee;border:1px solid #ffffff20;border-radius:999px;box-shadow:0 8px 30px #0009;backdrop-filter:blur(16px)}#readerBox button{width:48px;height:44px;border:0;border-radius:999px;background:#202938;color:#f4f1e8;font-size:20px;display:grid;place-items:center}#readerBox #readBtn{width:56px;background:#d9cfb5;color:#10131a;font-size:22px;font-weight:700}#readerBox button:active{transform:scale(.95)}#status{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);z-index:101;color:#aaa18f;font:12px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;opacity:.0;transition:opacity .2s;pointer-events:none;white-space:nowrap}#status.show{opacity:.9}@media(max-width:520px){#readerBox{bottom:14px}}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080b10}#page{position:fixed;inset:0;border:0;width:100%;height:100%;background:#080b10}#readerBox{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:100;display:flex;align-items:center;gap:7px;padding:8px;background:#111722ee;border:1px solid #ffffff20;border-radius:999px;box-shadow:0 8px 30px #0009;backdrop-filter:blur(16px)}#readerBox button{width:48px;height:44px;border:0;border-radius:999px;background:#202938;color:#f4f1e8;font-size:20px;display:grid;place-items:center}#readerBox #readBtn{width:56px;background:#d9cfb5;color:#10131a;font-size:22px;font-weight:700}#readerBox button:active{transform:scale(.95)}#status{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);z-index:101;color:#aaa18f;font:12px -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}#status.show{opacity:.9}@media(max-width:520px){#readerBox{bottom:14px}}
 </style>
 </head>
 <body>
 <iframe id="page" src="./story-0-reader-v23.html?v=24" title="故事"></iframe>
 <div id="status"></div>
-<div id="readerBox" aria-label="故事朗读">
-<button id="restartBtn" aria-label="重读">↺</button>
-<button id="readBtn" aria-label="开始朗读">▶</button>
-<button id="voiceBtn" aria-label="切换声音">🔊</button>
-</div>
+<div id="readerBox" aria-label="故事朗读"><button id="restartBtn" aria-label="重读">↺</button><button id="readBtn" aria-label="开始朗读">▶</button><button id="voiceBtn" aria-label="切换声音">🔊</button></div>
 <script>
 (()=>{
 'use strict';
 const frame=document.getElementById('page'),R=document.getElementById('readBtn'),RR=document.getElementById('restartBtn'),V=document.getElementById('voiceBtn'),status=document.getElementById('status');
-let doc=null,win=null,synth=window.speechSynthesis,state='idle',p=0,i=0,voiceIndex=0,voices=[],token=0,timer=0,raf=0,utter=null,lastBoundaryAt=0,boundaryFrom=0,boundaryTo=0,boundaryTime=0,boundaryDuration=0;
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let doc=null,win=null,synth=window.speechSynthesis,state='idle',p=0,i=0,voiceIndex=0,voices=[],token=0,timer=0,raf=0,utter=null,lastBoundaryAt=0;
 function setStatus(t){status.textContent=t;status.classList.toggle('show',!!t);if(t)setTimeout(()=>{if(status.textContent===t)status.classList.remove('show')},900)}
 function ready(){try{doc=frame.contentDocument;win=frame.contentWindow;return !!doc}catch(e){return false}}
-function spans(){return doc?[...doc.querySelectorAll('.read-char')]:[]}
 function paragraphs(){return doc?[...doc.querySelectorAll('.text p')]:[]}
-function clear(){spans().forEach(s=>s.classList.remove('speaking'))}
 function charsOf(n){return n?[...n.querySelectorAll('.read-char')]:[]}
-function light(n,k,follow=true){const a=charsOf(n);if(!a.length)return;i=Math.max(0,Math.min(k,a.length-1));a.forEach((s,x)=>s.classList.toggle('speaking',x===i));if(follow)followChar(a[i])}
+function clear(){if(!doc)return;doc.querySelectorAll('.read-char.speaking').forEach(s=>s.classList.remove('speaking'))}
 let lastFollow=0;
-function followChar(el){if(!el||!win)return;const now=performance.now();if(now-lastFollow<120)return;const r=el.getBoundingClientRect(),h=win.innerHeight||innerHeight,top=h*.28,bottom=h*.72;if(r.top<top||r.bottom>bottom){lastFollow=now;const delta=r.top-h*.46;win.scrollBy({top:delta,behavior:'smooth'})}}
+function followChar(el){if(!el||!win)return;const now=performance.now();if(now-lastFollow<120)return;const r=el.getBoundingClientRect(),h=win.innerHeight||innerHeight,top=h*.28,bottom=h*.72;if(r.top<top||r.bottom>bottom){lastFollow=now;win.scrollBy({top:r.top-h*.46,behavior:'smooth'})}}
+function light(n,k,follow=true){const a=charsOf(n);if(!a.length)return;i=Math.max(0,Math.min(k,a.length-1));a.forEach((s,x)=>s.classList.toggle('speaking',x===i));if(follow)followChar(a[i])}
 function button(){R.textContent=state==='playing'?'■':'▶';R.setAttribute('aria-label',state==='playing'?'停止朗读':state==='paused'?'继续朗读':'开始朗读')}
 function loadVoices(){const all=synth.getVoices();voices=all.filter(v=>/^zh(-|_|$)/i.test(v.lang)||/Chinese|中文|普通话|Mandarin/i.test(v.name));if(!voices.length)voices=all;return voices}
 loadVoices();if('onvoiceschanged' in synth)synth.onvoiceschanged=loadVoices;
 function cancelSpeech(){token++;clearTimeout(timer);cancelAnimationFrame(raf);timer=0;try{synth.cancel();synth.resume()}catch(e){}utter=null}
-function runVisual(my,n,start,end,duration){cancelAnimationFrame(raf);const t0=performance.now();const from=Math.max(0,start),to=Math.max(from,end),d=Math.max(80,duration||160);function tick(now){if(my!==token||state!=='playing')return;const q=Math.min(1,(now-t0)/d);const k=Math.min(to,from+Math.max(0,Math.floor((to-from)*q)));if(k>i||i<from)light(n,k,true);if(q<1)raf=requestAnimationFrame(tick)}raf=requestAnimationFrame(tick)}
+function runVisual(my,n,start,end,duration){cancelAnimationFrame(raf);const t0=performance.now(),from=Math.max(0,start),to=Math.max(from,end),d=Math.max(80,duration||160);function tick(now){if(my!==token||state!=='playing')return;const q=Math.min(1,(now-t0)/d),k=Math.min(to,from+Math.max(0,Math.floor((to-from)*q)));if(k>i||i<from)light(n,k,true);if(q<1)raf=requestAnimationFrame(tick)}raf=requestAnimationFrame(tick)}
 function estimatedStep(len){return Math.max(38,Math.min(105,7200/Math.max(1,len)))}
 function speakParagraph(my,para,start){if(my!==token||state!=='playing')return;const ps=paragraphs();if(para>=ps.length){clear();state='idle';p=0;i=0;button();setStatus('朗读完成');return}p=para;const n=ps[p],a=charsOf(n);if(!a.length){setTimeout(()=>speakParagraph(my,p+1,0),20);return}start=Math.max(0,Math.min(start||0,a.length-1));light(n,start,true);const text=n.textContent.slice(start);if(!text){setTimeout(()=>speakParagraph(my,p+1,0),80);return}
-const u=new SpeechSynthesisUtterance(text);utter=u;u.lang='zh-CN';u.rate=.94;u.pitch=1;u.volume=1;loadVoices();if(voices.length){const v=voices[voiceIndex%voices.length];try{u.voice=v}catch(e){}}
+const u=new SpeechSynthesisUtterance(text);utter=u;u.lang='zh-CN';u.rate=.94;u.pitch=1;u.volume=1;loadVoices();if(voices.length){try{u.voice=voices[voiceIndex%voices.length]}catch(e){}}
 let fallbackStarted=false,est=estimatedStep(text.length),lastAbs=start;
 function fallback(){if(fallbackStarted||my!==token||state!=='playing')return;fallbackStarted=true;let k=start;const step=()=>{if(my!==token||state!=='playing')return;if(k<a.length-1){k++;light(n,k,true);timer=setTimeout(step,est)}else light(n,k,true)};timer=setTimeout(step,Math.max(40,est))}
-u.onstart=()=>{if(my!==token||state!=='playing')return;light(n,start,true);lastBoundaryAt=performance.now();fallback();};
-u.onboundary=e=>{if(my!==token||state!=='playing'||typeof e.charIndex!=='number')return;const abs=Math.max(start,Math.min(a.length-1,start+e.charIndex));if(abs<=lastAbs)return;const now=performance.now();const gap=now-lastBoundaryAt;clearTimeout(timer);fallbackStarted=false;boundaryFrom=Math.max(i,start);boundaryTo=abs;boundaryTime=now;boundaryDuration=Math.max(70,Math.min(480,gap||140));runVisual(my,n,boundaryFrom,boundaryTo,boundaryDuration);lastAbs=abs;lastBoundaryAt=now;};
+u.onstart=()=>{if(my!==token||state!=='playing')return;light(n,start,true);lastBoundaryAt=performance.now();fallback()};
+u.onboundary=e=>{if(my!==token||state!=='playing'||typeof e.charIndex!=='number')return;const abs=Math.max(start,Math.min(a.length-1,start+e.charIndex));if(abs<=lastAbs)return;const now=performance.now(),gap=now-lastBoundaryAt;clearTimeout(timer);fallbackStarted=false;runVisual(my,n,Math.max(i,start),abs,Math.max(70,Math.min(480,gap||140)));lastAbs=abs;lastBoundaryAt=now};
 u.onend=()=>{if(my!==token||state!=='playing')return;clearTimeout(timer);cancelAnimationFrame(raf);const last=a.length-1;if(i<last){runVisual(my,n,i,last,Math.max(120,(last-i)*est));timer=setTimeout(()=>{if(my===token&&state==='playing'){light(n,last,true);setTimeout(()=>speakParagraph(my,p+1,0),90)}},Math.max(130,(last-i)*est)+30)}else{light(n,last,true);setTimeout(()=>speakParagraph(my,p+1,0),90)}};
-u.onerror=async()=>{if(my!==token||state!=='playing')return;clearTimeout(timer);setStatus('重新启动朗读');try{synth.cancel();synth.resume()}catch(e){}await sleep(120);if(my===token&&state==='playing')speakParagraph(my,p,i)};
+u.onerror=()=>{if(my!==token||state!=='playing')return;clearTimeout(timer);setStatus('重新启动朗读');try{synth.cancel();synth.resume()}catch(e){}setTimeout(()=>{if(my===token&&state==='playing')speakParagraph(my,p,i)},120)};
 try{synth.resume();synth.speak(u)}catch(e){u.onerror()}
 }
-async function startAt(para,start){if(!ready()){setStatus('页面加载中');return}cancelSpeech();state='playing';button();await sleep(100);const my=token;speakParagraph(my,para,start)}
-R.onclick=async()=>{if(state==='idle'){await startAt(p,i)}else if(state==='playing'){state='paused';cancelSpeech();button();setStatus('已暂停')}else{state='playing';button();await sleep(80);const my=token;speakParagraph(my,p,i)}};
-RR.onclick=async()=>{if(!ready())return;cancelSpeech();state='playing';p=0;i=0;clear();try{win.scrollTo({top:0,behavior:'smooth'})}catch(e){}button();await sleep(120);const my=token;speakParagraph(my,0,0)};
-V.onclick=async()=>{loadVoices();if(voices.length<2){setStatus('当前只有一个可用声音');return}voiceIndex=(voiceIndex+1)%voices.length;V.title='当前声音：'+voices[voiceIndex].name;setStatus('声音：'+voices[voiceIndex].name);if(state==='playing'){const cp=p,ci=i;cancelSpeech();await sleep(120);if(state==='playing'){const my=token;speakParagraph(my,cp,ci)}}};
+function startAt(para,start){if(!ready()){setStatus('页面加载中');return}cancelSpeech();state='playing';button();const my=token;speakParagraph(my,para,start)}
+R.onclick=()=>{if(state==='idle'){startAt(p,i)}else if(state==='playing'){state='paused';cancelSpeech();button();setStatus('已暂停')}else{state='playing';button();const my=token;speakParagraph(my,p,i)}};
+RR.onclick=()=>{if(!ready())return;cancelSpeech();state='playing';p=0;i=0;clear();try{win.scrollTo({top:0,behavior:'smooth'})}catch(e){}button();const my=token;speakParagraph(my,0,0)};
+V.onclick=()=>{loadVoices();if(voices.length<2){setStatus('当前只有一个可用声音');return}voiceIndex=(voiceIndex+1)%voices.length;V.title='当前声音：'+voices[voiceIndex].name;setStatus('声音：'+voices[voiceIndex].name);if(state==='playing'){const cp=p,ci=i;cancelSpeech();const my=token;speakParagraph(my,cp,ci)}};
 frame.addEventListener('load',()=>{ready();try{const old=doc.getElementById('readerBox');if(old)old.style.display='none';const oldStatus=doc.getElementById('status');if(oldStatus)oldStatus.style.display='none'}catch(e){}});
 button();
 })();
