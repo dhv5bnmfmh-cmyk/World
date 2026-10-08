@@ -36,16 +36,16 @@
 <div class="sources"><div>资料来源</div><a href="https://ghzrzyw.beijing.gov.cn/zhengwuxinxi/zxzt/wsghs/2021dyj/d5j/202102/t20210224_2288070.html" target="_blank" rel="noopener">北京市规划和自然资源委员会 · 史家胡同</a><a href="https://zjw.beijing.gov.cn/bjjs/xxgk/zcwj2024/gfxwj40/xxyx/436464671/2024060611455397127.pdf" target="_blank" rel="noopener">北京市相关规划资料 · 胡同与四合院</a></div>
 <div class="end">故事结束<br><a class="home" href="./china.html?city=beijing&v=5">返回北京</a></div>
 </main>
-<div id="readerBox" aria-label="故事朗读"><button class="play" id="readBtn">▶ 朗读</button><button id="voiceBtn">🔊 声音</button><button id="replayBtn">↻ 重读</button></div>
+<div id="readerBox" aria-label="故事朗读"><button class="play" id="readBtn">▶ 朗读</button><button id="stopBtn">■ 停止</button></div>
 <script>(function(){
-const synth=window.speechSynthesis,readBtn=document.getElementById('readBtn'),voiceBtn=document.getElementById('voiceBtn'),replayBtn=document.getElementById('replayBtn');
+const synth=window.speechSynthesis,readBtn=document.getElementById('readBtn'),stopBtn=document.getElementById('stopBtn');
 const textEls=[...document.querySelectorAll('.text p')].filter(p=>p.innerText.trim()),originals=textEls.map(p=>p.innerText),charEls=[];
 textEls.forEach((p,pi)=>{const text=originals[pi];p.textContent='';const a=[];[...text].forEach(ch=>{const s=document.createElement('span');s.className='read-char';s.textContent=ch;p.appendChild(s);a.push(s)});charEls.push(a)});
-let paragraphIndex=0,activeParagraph=0,stopped=true,paused=false,fallbackFrame=0,followFrame=0,currentChar=0,speechStartedAt=0,speechDuration=0,boundaryChar=0,boundaryAt=0,voices=[],voiceIndex=0;
+let paragraphIndex=0,activeParagraph=0,stopped=true,fallbackFrame=0,followFrame=0,currentChar=0,speechStartedAt=0,speechDuration=0,boundaryChar=0,boundaryAt=0;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 function refreshVoices(){const all=synth.getVoices();voices=all.filter(v=>/^zh(?:-|$)/i.test(v.lang));if(!voices.length)voices=all;if(voiceIndex>=voices.length)voiceIndex=0;updateVoiceLabel()}
 function updateVoiceLabel(){if(!voiceBtn)return;voiceBtn.textContent=voices.length?'🔊 '+((voices[voiceIndex].name||'中文').slice(0,12)):'🔊 声音'}
-refreshVoices();if('onvoiceschanged'in synth)synth.onvoiceschanged=refreshVoices;
+
 function clearMarks(){charEls.flat().forEach(s=>s.classList.remove('speaking'))}
 function paint(pi,i){const a=charEls[pi]||[];if(!a.length)return;currentChar=clamp(i,0,a.length-1);a.forEach((s,n)=>s.classList.toggle('speaking',n===currentChar))}
 function duration(t){const n=[...t].length,p=(t.match(/[，。！？；：、,.!?;:]/g)||[]).length;return clamp(n/4.35+p*.22,3.5,32)}
@@ -53,12 +53,10 @@ function stopFallback(){if(fallbackFrame){cancelAnimationFrame(fallbackFrame);fa
 function startFallback(pi,t){stopFallback();const total=[...t].length;const tick=now=>{if(stopped||paused||!synth.speaking)return;let i;if(boundaryAt>0&&now-boundaryAt<900){const from=boundaryChar,remain=Math.max(1,total-from),ms=Math.max(700,speechDuration*1000-Math.max(0,boundaryAt-speechStartedAt));i=from+Math.floor(clamp((now-boundaryAt)/ms,0,.999)*remain)}else i=Math.floor(clamp((now-speechStartedAt)/(speechDuration*1000),0,.999)*total);paint(pi,i);fallbackFrame=requestAnimationFrame(tick)};fallbackFrame=requestAnimationFrame(tick)}
 function stopFollow(){if(followFrame){cancelAnimationFrame(followFrame);followFrame=0}}
 function startFollow(){stopFollow();const tick=()=>{if(stopped||paused||!synth.speaking){followFrame=0;return}const s=(charEls[activeParagraph]||[])[currentChar];if(s){const r=s.getBoundingClientRect(),d=r.top-(innerHeight*.52);if(Math.abs(d)>10)scrollBy(0,clamp(d*.075,-3.2,3.2))}followFrame=requestAnimationFrame(tick)};followFrame=requestAnimationFrame(tick)}
-function ui(){if(stopped)readBtn.textContent='▶ 朗读';else if(paused)readBtn.textContent='▶ 继续';else readBtn.textContent='Ⅱ 暂停'}
-function speakNext(){stopFallback();stopFollow();if(stopped||paragraphIndex>=originals.length){clearMarks();stopped=true;paused=false;ui();return}const pi=paragraphIndex++;activeParagraph=pi;const t=originals[pi];speechDuration=duration(t);speechStartedAt=performance.now();boundaryAt=0;boundaryChar=0;currentChar=0;paint(pi,0);const u=new SpeechSynthesisUtterance(t);u.lang='zh-CN';u.rate=.92;u.pitch=1;if(voices[voiceIndex])u.voice=voices[voiceIndex];u.onstart=()=>{speechStartedAt=performance.now();ui();startFallback(pi,t);startFollow()};u.onboundary=e=>{boundaryChar=clamp(typeof e.charIndex==='number'?e.charIndex:0,0,[...t].length-1);boundaryAt=performance.now();paint(pi,boundaryChar)};u.onend=()=>{stopFallback();stopFollow();if(!stopped)speakNext()};u.onerror=()=>{stopFallback();stopFollow();if(!stopped)speakNext()};synth.speak(u)}
-function start(){synth.cancel();stopFallback();stopFollow();clearMarks();paragraphIndex=0;activeParagraph=0;currentChar=0;stopped=false;paused=false;ui();speakNext()}
-readBtn.onclick=()=>{if(stopped){start();return}if(paused){const total=[...(originals[activeParagraph]||'')].length;const p=total?currentChar/Math.max(1,total-1):0;synth.resume();paused=false;speechStartedAt=performance.now()-p*speechDuration*1000;boundaryAt=0;startFallback(activeParagraph,originals[activeParagraph]||'');startFollow();ui();return}if(synth.speaking){synth.pause();paused=true;stopFallback();stopFollow();ui()}}
-replayBtn.onclick=start;
-voiceBtn.onclick=()=>{refreshVoices();if(!voices.length)return;voiceIndex=(voiceIndex+1)%voices.length;updateVoiceLabel()};
+function ui(){readBtn.textContent=stopped?'▶ 朗读':'■ 停止'}
+function speakNext(){stopFallback();stopFollow();if(stopped||paragraphIndex>=originals.length){clearMarks();stopped=true;ui();return}const pi=paragraphIndex++;activeParagraph=pi;const t=originals[pi];speechDuration=duration(t);speechStartedAt=performance.now();boundaryAt=0;boundaryChar=0;currentChar=0;paint(pi,0);const u=new SpeechSynthesisUtterance(t);u.lang='zh-CN';u.rate=.92;u.pitch=1;if(voices[voiceIndex])u.voice=voices[voiceIndex];u.onstart=()=>{speechStartedAt=performance.now();ui();startFallback(pi,t);startFollow()};u.onboundary=e=>{boundaryChar=clamp(typeof e.charIndex==='number'?e.charIndex:0,0,[...t].length-1);boundaryAt=performance.now();paint(pi,boundaryChar)};u.onend=()=>{stopFallback();stopFollow();if(!stopped)speakNext()};u.onerror=()=>{stopFallback();stopFollow();if(!stopped)speakNext()};synth.speak(u)}
+function start(){synth.cancel();stopFallback();stopFollow();clearMarks();paragraphIndex=0;activeParagraph=0;currentChar=0;stopped=false;ui();speakNext()}
+readBtn.onclick=()=>{if(stopped)start();else{stopped=true;synth.cancel();stopFallback();stopFollow();clearMarks();ui()}};
 window.addEventListener('pagehide',()=>{stopped=true;synth.cancel();stopFallback();stopFollow()});
 })();</script>
 </body></html>
