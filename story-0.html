@@ -4,9 +4,6 @@ const textEls=[...document.querySelectorAll('.text p')].filter(p=>p.innerText.tr
 textEls.forEach((p,pi)=>{const text=originals[pi];p.textContent='';const a=[];[...text].forEach(ch=>{const s=document.createElement('span');s.className='read-char';s.textContent=ch;p.appendChild(s);a.push(s)});charEls.push(a)});
 let paragraphIndex=0,activeParagraph=0,stopped=true,fallbackFrame=0,followFrame=0,currentChar=0,speechStartedAt=0,speechDuration=0,boundaryChar=0,boundaryAt=0;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-function refreshVoices(){const all=synth.getVoices();voices=all.filter(v=>/^zh(?:-|$)/i.test(v.lang));if(!voices.length)voices=all;if(voiceIndex>=voices.length)voiceIndex=0;updateVoiceLabel()}
-function updateVoiceLabel(){if(!voiceBtn)return;voiceBtn.textContent=voices.length?'🔊 '+((voices[voiceIndex].name||'中文').slice(0,12)):'🔊 声音'}
-
 function clearMarks(){charEls.flat().forEach(s=>s.classList.remove('speaking'))}
 function paint(pi,i){const a=charEls[pi]||[];if(!a.length)return;currentChar=clamp(i,0,a.length-1);a.forEach((s,n)=>s.classList.toggle('speaking',n===currentChar))}
 function duration(t){const n=[...t].length,p=(t.match(/[，。！？；：、,.!?;:]/g)||[]).length;return clamp(n/4.35+p*.22,3.5,32)}
