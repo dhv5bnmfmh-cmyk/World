@@ -19,7 +19,7 @@ h1{font-size:clamp(28px,6vw,48px);line-height:1.1;margin:22px 0 10px}.sub{color:
 .reader{position:fixed;inset:0;z-index:20;max-width:none;padding:0;background:#05070a;overflow:hidden}.reader>.back{position:absolute;z-index:30;top:14px;left:14px;padding:8px 12px;background:#0d101699;border:1px solid #ffffff18;border-radius:999px;backdrop-filter:blur(12px);color:#fff}.reader #storyType,.reader #storyTitle,.reader #storySource,.reader .story-hero{display:none!important}.reader h1{font-size:clamp(27px,5.8vw,42px);margin:14px 0 8px}.story-hero{display:none}.story{margin:0 -16px;line-height:1.75;color:#fff}.cinema{position:fixed;inset:0;width:100vw;height:100dvh;min-height:100dvh;overflow:hidden;background:#05070a;display:block;padding:0}.cinema-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;opacity:1;transition:opacity .45s ease;transform:none;background:#05070a}.cinema::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,#00000010 28%,#00000018 48%,#000000d8 100%)}.cinema-image-credit{position:absolute;z-index:8;top:calc(12px + env(safe-area-inset-top));right:12px;max-width:180px;padding:4px 6px;border-radius:6px;background:#00000055;color:#ffffffb8;font-size:8px;line-height:1.35;text-decoration:none;text-shadow:0 1px 5px #000;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}.cinema-top{display:none}.cinema-title{font-size:12px;letter-spacing:1px;color:#ffffffcc;text-shadow:0 2px 10px #000}.cinema-source{font-size:10px;color:#ffffff99}.cinema-subtitle{position:absolute;z-index:6;left:22px;right:22px;bottom:calc(132px + env(safe-area-inset-bottom));max-height:46dvh;overflow:hidden;padding:8px 4px 12px;text-align:left;font-size:clamp(18px,5vw,26px);line-height:1.72;letter-spacing:.01em;color:#fff;max-width:900px;margin:auto;text-shadow:0 2px 16px #000,0 1px 5px #000;background:none;border-radius:0} .cinema-caption{display:none}.cinema-subtitle .current-line{display:block;white-space:pre-wrap}.cinema-subtitle .next-line{display:block;margin-top:20px;padding-top:0;border-top:0;color:#b8bec8;font-size:.94em}.cinema-subtitle .spoken-char{transition:color .12s,background-color .12s}.cinema-subtitle .spoken-char.active{color:#ffe7aa;background:#8d6b2c66;border-radius:3px;text-shadow:0 0 12px #ffcf70;font-weight:800}.cinema-end{display:none}.reader .story-info{display:none}.meta{color:#9da5b1;font-size:12px;line-height:1.7}
 .story-info{margin-top:34px;padding:16px 0 6px;border-top:1px solid #ffffff10}.info-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}.info-chip{font-size:11px;color:#bfc5cf;border:1px solid #303847;background:#151a22;border-radius:999px;padding:6px 9px}.source-line{font-size:11px;color:#7f8997;line-height:1.7}.source-line a{color:#a9a08a;text-decoration:none;margin-left:4px}
 .audio-player{position:fixed;z-index:30;left:10px;right:10px;bottom:10px;padding:11px 12px calc(11px + env(safe-area-inset-bottom));background:#151a22eF;border:1px solid #ffffff16;border-radius:18px;box-shadow:0 10px 35px #0008;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-.audio-top{display:flex;align-items:center;gap:10px}.audio-side{width:42px;height:42px;border:0;border-radius:50%;background:#202732;color:#ddd;border:1px solid #364050;display:grid;place-items:center;font-size:18px;flex:0 0 42px} .audio-speed{width:54px;height:42px;border:1px solid #9d9277;border-radius:14px;background:#e8dfc7;color:#151515;font-size:13px;font-weight:600;flex:0 0 48px;display:grid;place-items:center}.audio-info{min-width:0;flex:1;text-align:center}.audio-label{font-size:10px;letter-spacing:1.3px;color:#9d9277;margin-bottom:3px}.audio-title{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#eee9dc}.audio-button{width:48px;height:48px;border:0;border-radius:50%;background:#e8dfc7;color:#151515;display:grid;place-items:center;font-size:18px;flex:0 0 48px}.audio-stop{width:42px;height:42px;border:1px solid #364050;border-radius:50%;background:#202732;color:#cfd3da;font-size:13px;flex:0 0 42px;display:grid;place-items:center}.audio-progress{height:3px;background:#3a414d;border-radius:99px;margin:10px 2px 0;overflow:hidden}.audio-progress i{display:block;width:0;height:100%;background:#e8dfc7;border-radius:99px;transition:width .15s linear}.audio-time{display:flex;justify-content:space-between;color:#7f8997;font-size:10px;margin:4px 2px 0}
+.audio-top{display:flex;align-items:center;gap:8px;min-width:0}.audio-side{width:42px;height:42px;border:0;border-radius:50%;background:#202732;color:#ddd;border:1px solid #364050;display:grid!important;visibility:visible;place-items:center;font-size:18px;flex:0 0 42px;position:relative;z-index:2} .audio-speed{width:54px;height:42px;border:1px solid #9d9277;border-radius:14px;background:#e8dfc7;color:#151515;font-size:13px;font-weight:600;flex:0 0 48px;display:grid;place-items:center}.audio-info{min-width:0;flex:1;text-align:center}.audio-label{font-size:10px;letter-spacing:1.3px;color:#9d9277;margin-bottom:3px}.audio-title{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#eee9dc}.audio-button{width:48px;height:48px;border:0;border-radius:50%;background:#e8dfc7;color:#151515;display:grid;place-items:center;font-size:18px;flex:0 0 48px}.audio-stop{width:42px;height:42px;border:1px solid #364050;border-radius:50%;background:#202732;color:#cfd3da;font-size:13px;flex:0 0 42px;display:grid;place-items:center}.audio-progress{height:3px;background:#3a414d;border-radius:99px;margin:10px 2px 0;overflow:hidden}.audio-progress i{display:block;width:0;height:100%;background:#e8dfc7;border-radius:99px;transition:width .15s linear}.audio-time{display:flex;justify-content:space-between;color:#7f8997;font-size:10px;margin:4px 2px 0}@media(max-width:360px){.audio-top{gap:5px}.audio-side{width:36px;height:36px;flex-basis:36px}.audio-speed{width:44px;flex-basis:44px}.audio-button{width:42px;height:42px;flex-basis:42px}.audio-info{max-width:90px}}
 .small{font-size:12px;color:#7f8997;margin-top:24px}
 </style>
 </head>
@@ -124,7 +124,7 @@ const stories=[
 "北京很大，大到可以用宫殿、城门和大道来理解。但北京也很小，小到可以从一扇院门开始。胡同没有告诉你一个宏大的答案，它只让你看见一个人怎样生活、几个人怎样相遇，以及一座城市怎样在普通的一天里继续存在。",
 "所以离开胡同的时候，不必急着总结它代表什么。记住刚才看到的一扇门、一段墙、一束下午的光，也许就够了。文化并不总是站在高处等待被解释。有时候，它就在你走过的那条小路旁边，安静地过着自己的日子。"]}];
 let current=0,utterance=null,timer=null,startedAt=0,totalSeconds=0,elapsedBeforePause=0;
-let readingChunks=[],playUnits=[],unitIndex=0,chunkIndex=0,chunkElapsed=0,chunkDuration=0,chunkCharsConsumed=0,reading=false,readSpeed=1.0,activeSpeed=1.0;
+let readingChunks=[],playUnits=[],unitIndex=0,chunkIndex=0,chunkElapsed=0,chunkDuration=0,chunkCharsConsumed=0,reading=false,readSpeed=1.0,activeSpeed=1.0,pausedByUser=false,unitCharOffset=0,unitStartOffset=0,utteranceToken=0;
 
 function show(id){document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));const target=document.getElementById(id);if(!target)return;target.classList.add('active');stopSpeak();window.scrollTo(0,0)}
 function openStory(i){current=i;render();show('reader')}
@@ -222,19 +222,22 @@ function updateReadingHighlight(charIndex,autoScroll=true){
   }
 }
 
-function speakUnit(i){
+function speakUnit(i, resumeOffset=0){
   if(!reading||i>=playUnits.length){finishSpeak();return}
   unitIndex=i;
   const unit=playUnits[i];
   chunkIndex=unit.chunkIndex;
   showChunk(chunkIndex);
-  updateReadingHighlight(unit.startOffset||0,false);
+  unitStartOffset=Math.max(0,Math.min(unit.text.length,resumeOffset||0));
+  unitCharOffset=unitStartOffset;
+  updateReadingHighlight((unit.startOffset||0)+unitCharOffset,false);
   activeSpeed=readSpeed;
   chunkElapsed=0;
-  chunkDuration=Math.max(1.2,unit.text.length/(4.3*activeSpeed));
-  chunkCharsConsumed=0;
+  chunkDuration=Math.max(1.2,(unit.text.length-unitStartOffset)/(4.3*activeSpeed));
+  chunkCharsConsumed=unitCharOffset;
   startedAt=Date.now();
-  utterance=new SpeechSynthesisUtterance(unit.text);
+  const token=++utteranceToken;
+  utterance=new SpeechSynthesisUtterance(unit.text.slice(unitStartOffset));
   const voices=speechSynthesis.getVoices().filter(v=>/^zh-CN/i.test(v.lang));
   const chineseVoice=window.worldVoiceName ? voices.find(v=>v.name===window.worldVoiceName) : chooseChineseVoice();
   utterance.lang=chineseVoice?.lang||'zh-CN';
@@ -242,23 +245,54 @@ function speakUnit(i){
   utterance.rate=activeSpeed;
   utterance.pitch=1.0;
   utterance.volume=1.0;
-  utterance.onend=()=>{if(reading){speakUnit(unitIndex+1)}};
-  utterance.onerror=()=>{if(reading){finishSpeak()}};
+  utterance.onboundary=(event)=>{
+    if(token!==utteranceToken||!reading||pausedByUser)return;
+    if(typeof event.charIndex==='number'){
+      unitCharOffset=Math.min(unit.text.length,unitStartOffset+event.charIndex);
+      updateReadingHighlight((unit.startOffset||0)+unitCharOffset,true);
+    }
+  };
+  utterance.onend=()=>{if(token===utteranceToken&&reading&&!pausedByUser){speakUnit(unitIndex+1)}};
+  utterance.onerror=()=>{if(token===utteranceToken&&reading&&!pausedByUser){finishSpeak()}};
   speechSynthesis.speak(utterance);
 }
 
 function toggleSpeak(){
   if(!('speechSynthesis' in window)){alert('当前浏览器不支持朗读，请用 Safari 打开。');return}
-  if(speechSynthesis.speaking&&!speechSynthesis.paused){chunkElapsed=(Date.now()-startedAt)/1000;speechSynthesis.pause();audioButton.textContent='▶';return}
-  if(speechSynthesis.paused){startedAt=Date.now()-chunkElapsed*1000;speechSynthesis.resume();audioButton.textContent='Ⅱ';return}
+  if(reading){
+    if(pausedByUser||speechSynthesis.paused){
+      pausedByUser=false;
+      if(speechSynthesis.paused){
+        startedAt=Date.now();
+        speechSynthesis.resume();
+      }else{
+        utteranceToken++;
+        speechSynthesis.cancel();
+        speakUnit(unitIndex,unitCharOffset);
+      }
+      audioButton.textContent='Ⅱ';
+      return;
+    }
+    if(speechSynthesis.speaking){
+      pausedByUser=true;
+      chunkElapsed=(Date.now()-startedAt)/1000;
+      speechSynthesis.pause();
+      audioButton.textContent='▶';
+      return;
+    }
+    pausedByUser=false;
+    speakUnit(unitIndex,unitCharOffset);
+    audioButton.textContent='Ⅱ';
+    return;
+  }
   speak();
 }
 
 function speak(){
   if(!('speechSynthesis' in window))return;
-  if(reading&&speechSynthesis.paused){speechSynthesis.resume();audioButton.textContent='Ⅱ';return}
+  if(reading){toggleSpeak();return}
   stopSpeak();
-  reading=true;chunkIndex=0;unitIndex=0;startedAt=Date.now();elapsedBeforePause=0;audioButton.textContent='Ⅱ';
+  reading=true;pausedByUser=false;chunkIndex=0;unitIndex=0;unitCharOffset=0;unitStartOffset=0;startedAt=Date.now();elapsedBeforePause=0;audioButton.textContent='Ⅱ';
   readingChunks=stories[current].body.map(x=>x.trim()).filter(Boolean);
   playUnits=[];
 readingChunks.forEach((paragraph,pi)=>{
@@ -303,7 +337,7 @@ readingChunks.forEach((paragraph,pi)=>{
       chunkElapsed=(Date.now()-startedAt)/1000;
       const completedChars=playUnits.slice(0,unitIndex).reduce((a,u)=>a+u.text.length,0);
       const currentUnit=playUnits[unitIndex]||{text:''};
-      const currentChars=Math.min(currentUnit.text.length,Math.floor(chunkElapsed*4.3*activeSpeed));
+      const currentChars=Math.min(currentUnit.text.length,Math.max(unitCharOffset,unitStartOffset+Math.floor(chunkElapsed*4.3*activeSpeed)));unitCharOffset=Math.max(unitCharOffset,currentChars);
       const totalChars=playUnits.reduce((a,u)=>a+u.text.length,0);
       const spokenChars=Math.min(totalChars,completedChars+currentChars);
       updateReadingHighlight((currentUnit.startOffset||0)+currentChars,true);
@@ -316,7 +350,7 @@ readingChunks.forEach((paragraph,pi)=>{
 }
 
 function finishSpeak(){
-  reading=false;clearInterval(timer);timer=null;
+  reading=false;pausedByUser=false;clearInterval(timer);timer=null;
   audioProgress.style.width='100%';audioElapsed.textContent=formatTime(totalSeconds);audioButton.textContent='▶';
 }
 
@@ -326,7 +360,7 @@ function stopSpeak(){
   audioProgress.style.width='0%';audioElapsed.textContent='0:00';unitIndex=0;chunkIndex=0;chunkElapsed=0;chunkDuration=0;chunkCharsConsumed=0;
 }
 
-function replaySpeak(){speak()}
+function replaySpeak(){stopSpeak();speak()}
 function changeSpeed(){
   const speeds=[0.8,1.0,1.2,1.5];
   const n=speeds.indexOf(readSpeed);
