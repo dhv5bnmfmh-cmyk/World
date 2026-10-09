@@ -231,14 +231,15 @@ function speakUnit(i, resumeOffset=0){
   startedAt=Date.now();
   const token=++utteranceToken;
   utterance=new SpeechSynthesisUtterance(unit.text.slice(unitStartOffset));
-  const voices=speechSynthesis.getVoices().filter(v=>/^zh-CN/i.test(v.lang));
-  const chineseVoice=window.worldVoiceName ? voices.find(v=>v.name===window.worldVoiceName) : chooseChineseVoice();
+  const allVoices=speechSynthesis.getVoices();
+  const voices=allVoices.filter(v=>/^zh(-|_)/i.test(v.lang));
+  const chineseVoice=(window.worldVoiceName ? allVoices.find(v=>v.name===window.worldVoiceName) : null) || voices.find(v=>/^zh-CN/i.test(v.lang)) || voices[0] || null;
   utterance.lang=chineseVoice?.lang||'zh-CN';
   if(chineseVoice)utterance.voice=chineseVoice;
   utterance.rate=activeSpeed;utterance.pitch=1.0;utterance.volume=1.0;
   utterance.onboundary=(event)=>{if(token!==utteranceToken||!reading||pausedByUser)return;if(typeof event.charIndex==='number'){unitCharOffset=Math.min(unit.text.length,unitStartOffset+event.charIndex);updateReadingHighlight((unit.startOffset||0)+unitCharOffset,true)}};
   utterance.onend=()=>{if(token===utteranceToken&&reading&&!pausedByUser)speakUnit(unitIndex+1)};
-  utterance.onerror=()=>{if(token===utteranceToken&&reading&&!pausedByUser)finishSpeak()};
+  utterance.onerror=(event)=>{if(token===utteranceToken&&reading&&!pausedByUser){finishSpeak();audioButton.textContent='▶';console.error('Speech synthesis error:',event.error);alert('朗读启动失败：'+(event.error||'浏览器语音引擎无响应')+'。请关闭页面后重新打开；若仍无声音，请检查 iPhone 静音模式和“设置 → 辅助功能 → 朗读内容 → 声音”。')}};
   speechSynthesis.speak(utterance);
 }
 function toggleSpeak(){
@@ -313,7 +314,7 @@ function finishSpeak(){
 }
 
 function stopSpeak(){
-  if('speechSynthesis' in window)speechSynthesis.cancel();
+  utteranceToken++;pausedByUser=false;unitCharOffset=0;unitStartOffset=0;if('speechSynthesis' in window)speechSynthesis.cancel();
   clearInterval(timer);timer=null;reading=false;audioButton.textContent='▶';
   audioProgress.style.width='0%';audioElapsed.textContent='0:00';unitIndex=0;chunkIndex=0;chunkElapsed=0;chunkDuration=0;chunkCharsConsumed=0;
 }
