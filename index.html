@@ -217,7 +217,9 @@ function showChunk(i){
     const chars=Array.from(paragraph).map((ch,ci)=>'<span class="spoken-char" data-char="'+ci+'">'+(ch===' ' ? '&nbsp;' : ch.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'))+'</span>').join('');
     return '<p class="story-reading-paragraph" data-chunk="'+pi+'" style="margin:0 0 20px">'+chars+'</p>';
   }).join('');
+  const previousScrollTop=cinemaSubtitle.scrollTop;
   cinemaSubtitle.innerHTML=paragraphs;
+  cinemaSubtitle.scrollTop=previousScrollTop;
   const imageNo=Math.min(story.images.length-1,Math.floor(chunkIndex/2));
   const image=story.images[imageNo];
   cinemaCaption.textContent=image.credit;
@@ -225,7 +227,6 @@ function showChunk(i){
   cinemaImageCredit.href=image.source;
   cinemaImageCredit.title='查看原图来源与许可证：'+(image.license||'');
   cinemaImageCredit.setAttribute('aria-label','图片来源与许可证：'+(image.license||''));
-  cinemaSubtitle.scrollTop=0;
   if(imageNo!==Number(cinemaImage.dataset.imageNo)){
     cinemaImage.dataset.imageNo=String(imageNo);
     cinemaImage.style.opacity='0.15';
