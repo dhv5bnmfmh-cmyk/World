@@ -220,7 +220,7 @@ function showChunk(i){
   const previousScrollTop=cinemaSubtitle.scrollTop;
   cinemaSubtitle.innerHTML=paragraphs;
   cinemaSubtitle.scrollTop=previousScrollTop;
-  const imageNo=Math.min(story.images.length-1,Math.floor(chunkIndex/2));
+  const imageNo=Math.min(story.images.length-1,Math.floor((chunkIndex/Math.max(1,readingChunks.length-1))*story.images.length));
   const image=story.images[imageNo];
   cinemaCaption.textContent=image.credit;
   cinemaImageCredit.textContent='图片：'+image.credit;
@@ -345,13 +345,17 @@ function stopSpeak(){
 
 function replaySpeak(){stopSpeak();speak()}
 function changeSpeed(){
-  const speeds=[0.8,1.0,1.2,1.5];
+  const speeds=[0.8,1.0,1.2,1.5,2.0];
   const n=speeds.indexOf(readSpeed);
   readSpeed=speeds[(n+1)%speeds.length];
   speedButton.textContent=readSpeed.toFixed(1)+'×';
-  speedButton.title=reading
-    ? '当前语音片段保持不中断，下一小段立即使用 '+readSpeed.toFixed(1)+'×'
-    : '朗读速度 '+readSpeed.toFixed(1)+'×';
+  speedButton.title='朗读速度 '+readSpeed.toFixed(1)+'×';
+  if(reading&&!pausedByUser){
+    const resumeAt=unitCharOffset;
+    utteranceToken++;
+    speechSynthesis.cancel();
+    speakUnit(unitIndex,resumeAt);
+  }
 }
 function changeVoice(){
   if(!('speechSynthesis' in window)){alert('当前浏览器不支持语音选择。');return}
