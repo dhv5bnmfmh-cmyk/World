@@ -220,7 +220,7 @@ function showChunk(i){
   const previousScrollTop=cinemaSubtitle.scrollTop;
   cinemaSubtitle.innerHTML=paragraphs;
   cinemaSubtitle.scrollTop=previousScrollTop;
-  const imageNo=Math.min(story.images.length-1,Math.floor((chunkIndex/Math.max(1,readingChunks.length-1))*story.images.length));
+  const imageNo=Math.min(story.images.length-1,Math.floor((chunkIndex/Math.max(1,readingChunks.length))*story.images.length));
   const image=story.images[imageNo];
   cinemaCaption.textContent=image.credit;
   cinemaImageCredit.textContent='图片：'+image.credit;
@@ -322,6 +322,7 @@ function speak(){
       const completedChars=playUnits.slice(0,unitIndex).reduce((a,u)=>a+u.text.length,0);
       const currentUnit=playUnits[unitIndex]||{text:''};
       const currentChars=Math.min(currentUnit.text.length,Math.max(unitCharOffset,unitStartOffset+Math.floor(chunkElapsed*4.3*activeSpeed)));unitCharOffset=Math.max(unitCharOffset,currentChars);
+      updateReadingHighlight((currentUnit.startOffset||0)+currentChars,true);
       const totalChars=playUnits.reduce((a,u)=>a+u.text.length,0);
       const spokenChars=Math.min(totalChars,completedChars+currentChars);
       const p=Math.min(99.5,spokenChars/totalChars*100);
