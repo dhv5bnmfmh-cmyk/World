@@ -67,29 +67,26 @@ function speakSegment(pi,offset=0){stopFallback();stopFollow();if(stopped||pi>=o
 function speakNext(){if(stopped)return;if(paragraphIndex>=originals.length){clearMarks();stopped=true;paused=false;ui();return}speakSegment(paragraphIndex,0)}
 function restartCurrent(){
  if(stopped)return;
- const wasPaused=paused,pi=activeParagraph,offset=currentChar;
+ const pi=activeParagraph;
+ const wasPaused=paused;
+ const chars=[...(originals[pi]||'')];
+ const offset=clamp(currentChar+1,0,chars.length);
  const oldUtterance=utterance;
- // Queue the new voice/rate without cancelling speech, preserving playback state.
- // iOS applies utterance settings at utterance creation, so switch at a safe boundary.
- const next=new SpeechSynthesisUtterance([...originals[pi]].slice(offset).join(''));
+ stopFallback();stopFollow();
+ if(oldUtterance){oldUtterance.onstart=null;oldUtterance.onboundary=null;oldUtterance.onend=null;oldUtterance.onerror=null}
+ synth.cancel();
+ const next=new SpeechSynthesisUtterance(chars.slice(offset).join(''));
  next.lang=voices[voiceIndex]?.lang||'zh-CN';
  if(voices[voiceIndex])next.voice=voices[voiceIndex];
  next.rate=.92*speed;next.pitch=1;
- next.onstart=()=>{activeParagraph=pi;segmentStart=offset;speechDuration=duration(next.text);speechStartedAt=performance.now();boundaryAt=0;boundaryChar=offset;if(!wasPaused){startFallback(pi,next.text,offset);startFollow()}ui()};
+ next.onstart=()=>{activeParagraph=pi;segmentStart=offset;speechDuration=duration(next.text);speechStartedAt=performance.now();boundaryAt=0;boundaryChar=0;paint(pi,offset);if(!paused){startFallback(pi,next.text,offset);startFollow()}ui()};
  next.onboundary=e=>{boundaryChar=offset+clamp(typeof e.charIndex==='number'?e.charIndex:0,0,Math.max(0,[...next.text].length-1));boundaryAt=performance.now();paint(pi,boundaryChar)};
- next.onend=()=>{stopFallback();stopFollow();if(!stopped&&!wasPaused){paragraphIndex=pi+1;speakNext()}};
- next.onerror=()=>{if(!stopped&&!wasPaused){stopped=true;ui()}};
- if(oldUtterance&&synth.speaking&&!synth.paused){
-   // Cannot alter a queued utterance in place; queue the replacement at its natural end.
-   oldUtterance.onend=()=>{if(!stopped&&!wasPaused){utterance=next;synth.speak(next)}};
-   oldUtterance.onerror=()=>{if(!stopped&&!wasPaused){utterance=next;synth.speak(next)}};
- }else if(wasPaused){
-   utterance=next;
-   // Retain the paused state and swap the utterance only when the user resumes.
-   pausedUtterance=next;ui();
- }else{
-   utterance=next;synth.speak(next);
- }
+ next.onend=()=>{stopFallback();stopFollow();if(!stopped&&!paused){paragraphIndex=pi+1;speakNext()}};
+ next.onerror=()=>{stopFallback();stopFollow();if(!stopped&&!paused){stopped=true;ui()}};
+ utterance=next;
+ if(wasPaused){pausedUtterance=next;ui();return}
+ // Cancel first, then enqueue the remaining text after the speech engine clears its old utterance.
+ setTimeout(()=>{if(!stopped&&!paused&&utterance===next)synth.speak(next)},80);
 }
 function start(){synth.cancel();stopFallback();stopFollow();clearMarks();paragraphIndex=0;activeParagraph=0;currentChar=0;paused=false;stopped=false;ui();speakNext()}
 readBtn.onclick=()=>{if(stopped){start();return}if(paused){paused=false;if(pausedUtterance){utterance=pausedUtterance;pausedUtterance=null;synth.speak(utterance);ui();return}synth.resume();speechStartedAt=performance.now()-(currentChar/Math.max(1,[...(originals[activeParagraph]||'')].length))*speechDuration*1000;ui();startFallback(activeParagraph,originals[activeParagraph]||'');startFollow();return}if(synth.speaking){paused=true;synth.pause();stopFallback();stopFollow();ui()}};
