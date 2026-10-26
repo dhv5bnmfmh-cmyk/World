@@ -52,7 +52,7 @@
 const synth=window.speechSynthesis,readBtn=document.getElementById('readBtn'),replayBtn=document.getElementById('replayBtn'),voiceBtn=document.getElementById('voiceBtn'),speedBtn=document.getElementById('speedBtn');
 const textEls=[...document.querySelectorAll('.text p,.fact p')].filter(p=>p.innerText.trim()),originals=textEls.map(p=>p.innerText),charEls=[];
 textEls.forEach((p,pi)=>{const text=originals[pi];p.textContent='';const a=[];[...text].forEach(ch=>{const s=document.createElement('span');s.className='read-char';s.textContent=ch;p.appendChild(s);a.push(s)});charEls.push(a)});
-let paragraphIndex=0,activeParagraph=0,stopped=true,paused=false,fallbackFrame=0,followFrame=0,currentChar=0,speechStartedAt=0,speechDuration=0,boundaryChar=0,boundaryAt=0,voices=[],voiceIndex=0,speed=1,utterance=null,segmentStart=0;
+let paragraphIndex=0,activeParagraph=0,stopped=true,paused=false,fallbackFrame=0,followFrame=0,currentChar=0,speechStartedAt=0,speechDuration=0,boundaryChar=0,boundaryAt=0,voices=[],voiceIndex=0,speed=1,utterance=null,segmentStart=0,pausedUtterance=null;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 function refreshVoices(){const all=synth.getVoices();voices=all.filter(v=>/^zh(?:-|$)/i.test(v.lang));if(!voices.length)voices=all;if(voiceIndex>=voices.length)voiceIndex=0}
 function clearMarks(){charEls.flat().forEach(s=>s.classList.remove('speaking'))}
@@ -68,22 +68,31 @@ function speakNext(){if(stopped)return;if(paragraphIndex>=originals.length){clea
 function restartCurrent(){
  if(stopped)return;
  const wasPaused=paused,pi=activeParagraph,offset=currentChar;
- stopFallback();stopFollow();synth.cancel();
- const resumeUtterance=new SpeechSynthesisUtterance([...originals[pi]].slice(offset).join(''));
- resumeUtterance.lang=voices[voiceIndex]?.lang||'zh-CN';
- if(voices[voiceIndex])resumeUtterance.voice=voices[voiceIndex];
- resumeUtterance.rate=.92*speed;resumeUtterance.pitch=1;
- speechDuration=duration(resumeUtterance.text);speechStartedAt=performance.now();boundaryAt=0;boundaryChar=offset;
- utterance=resumeUtterance;segmentStart=offset;activeParagraph=pi;
- resumeUtterance.onstart=()=>{speechStartedAt=performance.now();if(!wasPaused){startFallback(pi,resumeUtterance.text,offset);startFollow()}ui()};
- resumeUtterance.onboundary=e=>{boundaryChar=offset+clamp(typeof e.charIndex==='number'?e.charIndex:0,0,Math.max(0,[...resumeUtterance.text].length-1));boundaryAt=performance.now();paint(pi,boundaryChar)};
- resumeUtterance.onend=()=>{stopFallback();stopFollow();if(!stopped&&!wasPaused){paragraphIndex=pi+1;speakNext()}};
- resumeUtterance.onerror=()=>{stopFallback();stopFollow();if(!stopped&&!wasPaused){stopped=true;ui()}};
- synth.speak(resumeUtterance);
- if(wasPaused){paused=true;setTimeout(()=>{if(utterance===resumeUtterance&&paused)synth.pause()},80)}
+ const oldUtterance=utterance;
+ // Queue the new voice/rate without cancelling speech, preserving playback state.
+ // iOS applies utterance settings at utterance creation, so switch at a safe boundary.
+ const next=new SpeechSynthesisUtterance([...originals[pi]].slice(offset).join(''));
+ next.lang=voices[voiceIndex]?.lang||'zh-CN';
+ if(voices[voiceIndex])next.voice=voices[voiceIndex];
+ next.rate=.92*speed;next.pitch=1;
+ next.onstart=()=>{activeParagraph=pi;segmentStart=offset;speechDuration=duration(next.text);speechStartedAt=performance.now();boundaryAt=0;boundaryChar=offset;if(!wasPaused){startFallback(pi,next.text,offset);startFollow()}ui()};
+ next.onboundary=e=>{boundaryChar=offset+clamp(typeof e.charIndex==='number'?e.charIndex:0,0,Math.max(0,[...next.text].length-1));boundaryAt=performance.now();paint(pi,boundaryChar)};
+ next.onend=()=>{stopFallback();stopFollow();if(!stopped&&!wasPaused){paragraphIndex=pi+1;speakNext()}};
+ next.onerror=()=>{if(!stopped&&!wasPaused){stopped=true;ui()}};
+ if(oldUtterance&&synth.speaking&&!synth.paused){
+   // Cannot alter a queued utterance in place; queue the replacement at its natural end.
+   oldUtterance.onend=()=>{if(!stopped&&!wasPaused){utterance=next;synth.speak(next)}};
+   oldUtterance.onerror=()=>{if(!stopped&&!wasPaused){utterance=next;synth.speak(next)}};
+ }else if(wasPaused){
+   utterance=next;
+   // Retain the paused state and swap the utterance only when the user resumes.
+   pausedUtterance=next;ui();
+ }else{
+   utterance=next;synth.speak(next);
+ }
 }
 function start(){synth.cancel();stopFallback();stopFollow();clearMarks();paragraphIndex=0;activeParagraph=0;currentChar=0;paused=false;stopped=false;ui();speakNext()}
-readBtn.onclick=()=>{if(stopped){start();return}if(paused){paused=false;synth.resume();speechStartedAt=performance.now()-(currentChar/Math.max(1,[...(originals[activeParagraph]||'')].length))*speechDuration*1000;ui();startFallback(activeParagraph,originals[activeParagraph]||'');startFollow();return}if(synth.speaking){paused=true;synth.pause();stopFallback();stopFollow();ui()}};
+readBtn.onclick=()=>{if(stopped){start();return}if(paused){paused=false;if(pausedUtterance){utterance=pausedUtterance;pausedUtterance=null;synth.speak(utterance);ui();return}synth.resume();speechStartedAt=performance.now()-(currentChar/Math.max(1,[...(originals[activeParagraph]||'')].length))*speechDuration*1000;ui();startFallback(activeParagraph,originals[activeParagraph]||'');startFollow();return}if(synth.speaking){paused=true;synth.pause();stopFallback();stopFollow();ui()}};
 replayBtn.onclick=start;
 speedBtn.onclick=()=>{const a=[.8,1,1.2,1.5,2];speed=a[(a.indexOf(speed)+1)%a.length];speedBtn.textContent=speed.toFixed(1)+'×';restartCurrent();};
 voiceBtn.onclick=()=>{refreshVoices();if(voices.length){voiceIndex=(voiceIndex+1)%voices.length;voiceBtn.textContent='♫ '+(voiceIndex+1)+'/'+voices.length;restartCurrent()}};
