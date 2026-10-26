@@ -68,15 +68,19 @@ function speakNext(){if(stopped)return;if(paragraphIndex>=originals.length){clea
 function restartCurrent(){
  if(stopped)return;
  const wasPaused=paused,pi=activeParagraph,offset=currentChar;
- paused=false;stopFallback();stopFollow();synth.cancel();
- setTimeout(()=>{
-   if(stopped)return;
-   speakSegment(pi,offset);
-   if(wasPaused&&utterance){
-     const originalOnStart=utterance.onstart;
-     utterance.onstart=()=>{if(originalOnStart)originalOnStart();setTimeout(()=>{if(!stopped){paused=true;synth.pause();stopFallback();stopFollow();ui()}},120)};
-   }
- },180);
+ stopFallback();stopFollow();synth.cancel();
+ const resumeUtterance=new SpeechSynthesisUtterance([...originals[pi]].slice(offset).join(''));
+ resumeUtterance.lang=voices[voiceIndex]?.lang||'zh-CN';
+ if(voices[voiceIndex])resumeUtterance.voice=voices[voiceIndex];
+ resumeUtterance.rate=.92*speed;resumeUtterance.pitch=1;
+ speechDuration=duration(resumeUtterance.text);speechStartedAt=performance.now();boundaryAt=0;boundaryChar=offset;
+ utterance=resumeUtterance;segmentStart=offset;activeParagraph=pi;
+ resumeUtterance.onstart=()=>{speechStartedAt=performance.now();if(!wasPaused){startFallback(pi,resumeUtterance.text,offset);startFollow()}ui()};
+ resumeUtterance.onboundary=e=>{boundaryChar=offset+clamp(typeof e.charIndex==='number'?e.charIndex:0,0,Math.max(0,[...resumeUtterance.text].length-1));boundaryAt=performance.now();paint(pi,boundaryChar)};
+ resumeUtterance.onend=()=>{stopFallback();stopFollow();if(!stopped&&!wasPaused){paragraphIndex=pi+1;speakNext()}};
+ resumeUtterance.onerror=()=>{stopFallback();stopFollow();if(!stopped&&!wasPaused){stopped=true;ui()}};
+ synth.speak(resumeUtterance);
+ if(wasPaused){paused=true;setTimeout(()=>{if(utterance===resumeUtterance&&paused)synth.pause()},80)}
 }
 function start(){synth.cancel();stopFallback();stopFollow();clearMarks();paragraphIndex=0;activeParagraph=0;currentChar=0;paused=false;stopped=false;ui();speakNext()}
 readBtn.onclick=()=>{if(stopped){start();return}if(paused){paused=false;synth.resume();speechStartedAt=performance.now()-(currentChar/Math.max(1,[...(originals[activeParagraph]||'')].length))*speechDuration*1000;ui();startFallback(activeParagraph,originals[activeParagraph]||'');startFollow();return}if(synth.speaking){paused=true;synth.pause();stopFallback();stopFollow();ui()}};
