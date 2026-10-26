@@ -61,7 +61,19 @@ function startFollow(){stopFollow();const tick=()=>{if(stopped||paused){followFr
 function ui(){readBtn.textContent=stopped?'▶ 朗读':paused?'▶ 继续':'Ⅱ 暂停'}
 function speakSegment(pi,offset=0){stopFallback();stopFollow();if(stopped||pi>=originals.length){clearMarks();stopped=true;paused=false;ui();return}activeParagraph=pi;const full=originals[pi],chars=[...full],t=chars.slice(offset).join('');segmentStart=offset;speechDuration=duration(t);speechStartedAt=performance.now();boundaryAt=0;boundaryChar=0;paint(pi,offset);utterance=new SpeechSynthesisUtterance(t);utterance.lang=voices[voiceIndex]?.lang||'zh-CN';if(voices[voiceIndex])utterance.voice=voices[voiceIndex];utterance.rate=.92*speed;utterance.pitch=1;utterance.onstart=()=>{speechStartedAt=performance.now();ui();startFallback(pi,t,offset);startFollow()};utterance.onboundary=e=>{boundaryChar=offset+clamp(typeof e.charIndex==='number'?e.charIndex:0,0,Math.max(0,[...t].length-1));boundaryAt=performance.now();paint(pi,boundaryChar)};utterance.onend=()=>{stopFallback();stopFollow();if(!stopped&&!paused){paragraphIndex=pi+1;speakNext()}};utterance.onerror=()=>{stopFallback();stopFollow();if(!stopped&&!paused){stopped=true;ui()}};synth.speak(utterance)}
 function speakNext(){if(stopped)return;if(paragraphIndex>=originals.length){clearMarks();stopped=true;paused=false;ui();return}speakSegment(paragraphIndex,0)}
-function restartCurrent(){if(stopped||paused)return;const pi=activeParagraph,offset=currentChar;synth.cancel();speakSegment(pi,offset)}
+function restartCurrent(){
+ if(stopped)return;
+ const wasPaused=paused,pi=activeParagraph,offset=currentChar;
+ paused=false;stopFallback();stopFollow();synth.cancel();
+ setTimeout(()=>{
+   if(stopped)return;
+   speakSegment(pi,offset);
+   if(wasPaused&&utterance){
+     const originalOnStart=utterance.onstart;
+     utterance.onstart=()=>{if(originalOnStart)originalOnStart();setTimeout(()=>{if(!stopped){paused=true;synth.pause();stopFallback();stopFollow();ui()}},120)};
+   }
+ },180);
+}
 function start(){synth.cancel();stopFallback();stopFollow();clearMarks();paragraphIndex=0;activeParagraph=0;currentChar=0;paused=false;stopped=false;ui();speakNext()}
 readBtn.onclick=()=>{if(stopped){start();return}if(paused){paused=false;synth.resume();speechStartedAt=performance.now()-(currentChar/Math.max(1,[...(originals[activeParagraph]||'')].length))*speechDuration*1000;ui();startFallback(activeParagraph,originals[activeParagraph]||'');startFollow();return}if(synth.speaking){paused=true;synth.pause();stopFallback();stopFollow();ui()}};
 replayBtn.onclick=start;
